@@ -14,6 +14,8 @@ async function render() {
   $('toggleSite').textContent = siteOff ? 'Включить на этом сайте' : 'Выключить на этом сайте';
   $('toggleSite').hidden = !host;
   $('togglePause').textContent = s.paused ? 'Снять с паузы' : 'Поставить на паузу везде';
+  const { skipVideoAds } = await ext.storage.local.get({ skipVideoAds: true });
+  $('toggleSkip').textContent = `Пропуск рекламы в роликах YouTube: ${skipVideoAds ? 'включён' : 'выключен'}`;
 }
 
 $('toggleSite').onclick = async (e) => {
@@ -31,5 +33,11 @@ $('togglePause').onclick = async (e) => {
   await ext.storage.local.set({ paused: !s.paused });
   await render();
   ext.tabs.reload(tab.id);
+};
+$('toggleSkip').onclick = async (e) => {
+  e.preventDefault();
+  const { skipVideoAds } = await ext.storage.local.get({ skipVideoAds: true });
+  await ext.storage.local.set({ skipVideoAds: !skipVideoAds });
+  await render();
 };
 render();

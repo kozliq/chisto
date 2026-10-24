@@ -24,9 +24,13 @@ jobs:
         run: node --test test.mjs
       - name: Синтаксис скриптов
         run: |
-          for f in extension/src/background.js extension/src/popup/popup.js tools/*.mjs scripts/*.mjs; do
-            node --check "$f"
+          for f in extension/src/background.js extension/src/popup/popup.js; do
+            node --input-type=module --check < "$f"
           done
+          node --check extension/src/skip.js
+          for f in tools/*.mjs scripts/*.mjs; do node --check "$f"; done
+      - name: Пропуск рекламы в роликах
+        run: node --test extension/test.mjs
       - name: Свои правила разбираются без ошибок
         run: node tools/build.mjs --dns-only --offline
 
