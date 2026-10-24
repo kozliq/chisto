@@ -35,7 +35,7 @@ function wire(name) {
 function parse(buf) {
   const rcode = buf[3] & 0x0f, an = buf.readUInt16BE(6);
   let o = 12;
-  const skip = () => { for (;;) { const n = buf[o]; if (n === 0) { o++; return; } if ((n & 0xc0) === 0xc0) { o += 2; return; } o += n + 1; } };
+  const skip = () => { for (;;) { if (o >= buf.length) throw new Error('обрезанный ответ'); const n = buf[o]; if (n === 0) { o++; return; } if ((n & 0xc0) === 0xc0) { o += 2; return; } o += n + 1; } };
   skip(); o += 4;
   const ips = [];
   for (let i = 0; i < an; i++) {

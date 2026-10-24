@@ -40,11 +40,20 @@ export function intro(site) {
 }
 
 /** Что ответить на апдейт. Возвращает список вызовов Bot API: [{ method, body }]. */
-export function handleUpdate(update, site) {
+export function handleUpdate(update, site, botName = '') {
   const out = [];
   const msg = update.message;
-  if (msg?.chat && typeof msg.text === 'string') {
-    const cmd = msg.text.trim().split(/[\s@]/)[0].slice(1);
+  // В личке отвечаем на всё; в группах — только на свои команды, чтобы не мешать людям.
+  const text = typeof msg?.text === 'string' ? msg.text.trim() : '';
+  const group = msg?.chat?.type && msg.chat.type !== 'private';
+  if (msg?.chat && text && !msg.successful_payment) {
+    const isCmd = text.startsWith('/');
+    const [rawCmd, target] = isCmd ? text.split(/\s/)[0].slice(1).split('@') : [''];
+    const cmd = rawCmd.toLowerCase();
+    const known = cmd === 'start' || cmd === 'help' || cmd === 'donate' || cmd === 'paysupport' || cmd === 'ext' ||
+      DEVICES.some(d => d.id === cmd);
+    const ours = !target || !botName || target.toLowerCase() === botName.toLowerCase();
+    if (group && (!isCmd || !known || !ours)) return out;
     const device = DEVICES.find(d => d.id === cmd);
     if (device) {
       out.push({ method: 'sendMessage', body: {
@@ -68,11 +77,12 @@ export function handleUpdate(update, site) {
   }
   const pc = update.pre_checkout_query;
   if (pc) {
-    const ok = pc.currency === 'XTR' && String(pc.invoice_payload || '').startsWith('thanks:');
+    const n = Number(/^thanks:(\d+)$/.exec(String(pc.invoice_payload || ''))?.[1]);
+    const ok = pc.currency === 'XTR' && STARS.includes(n) && pc.total_amount === n;
     out.push({ method: 'answerPreCheckoutQuery', body: { pre_checkout_query_id: pc.id, ok,
       ...(ok ? {} : { error_message: 'Этот платёж не от Чисто.' }) } });
   }
-  if (msg?.successful_payment) {
+  if (msg?.chat && msg.successful_payment?.currency === 'XTR') {
     out.push({ method: 'sendMessage', body: { chat_id: msg.chat.id, text: 'Спасибо! ❤️ Звёздочка долетела, автору приятно.' } });
   }
   const iq = update.inline_query;
@@ -105,13 +115,16 @@ export async function botRequest(request, env, site) {
   if (!env.TG_TOKEN || request.headers.get('x-telegram-bot-api-secret-token') !== env.TG_SECRET) {
     return new Response('forbidden', { status: 403 });
   }
-  const update = await request.json().catch(() => null);
-  if (!update) return new Response('bad', { status: 400 });
-  for (const call of handleUpdate(update, site)) {
-    if (call.method === 'donate') { await sendDonate(call.body.chat_id, env.TG_TOKEN); continue; }
-    await fetch(`https://api.telegram.org/bot${env.TG_TOKEN}/${call.method}`, {
-      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(call.body),
-    }).catch(() => {});
+  // Всегда отвечаем 200: иначе Telegram будет слать тот же апдейт снова и снова.
+  try {
+    const update = await request.json().catch(() => null);
+    if (!update || typeof update !== 'object') return new Response('ok');
+    for (const call of handleUpdate(update, site, env.TG_BOT)) {
+      if (call.method === 'donate') { await sendDonate(call.body.chat_id, env.TG_TOKEN); continue; }
+      await tgCall(env.TG_TOKEN, call.method, call.body);
+    }
+  } catch {
+    // кривой апдейт не должен ронять вебхук
   }
   return new Response('ok');
 }
@@ -123,13 +136,22 @@ async function tgCall(token, method, body) {
   return r?.ok ? r.result : null;
 }
 
+// Ссылки на оплату одинаковые для всех — создаём один раз на жизнь изолята, а не на каждый /donate.
+let donateLinks = null;
+
 /** Кнопки «⭐ 10 / 50 / 100 / 500»: каждая открывает оплату звёздами. */
 async function sendDonate(chatId, token) {
-  const links = await Promise.all(STARS.map(n => tgCall(token, 'createInvoiceLink', {
-    title: 'Спасибо Чисто', payload: `thanks:${n}`, currency: 'XTR', prices: [{ label: 'Спасибо', amount: n }],
-    description: 'Добровольное спасибо, ничего не покупается. Передумал — /paysupport.',
-  })));
-  if (links.some(l => !l)) return;
+  if (!donateLinks) {
+    const links = await Promise.all(STARS.map(n => tgCall(token, 'createInvoiceLink', {
+      title: 'Спасибо Чисто', payload: `thanks:${n}`, currency: 'XTR', prices: [{ label: 'Спасибо', amount: n }],
+      description: 'Добровольное спасибо, ничего не покупается. Передумал — /paysupport.',
+    })));
+    if (links.every(Boolean)) donateLinks = links;
+  }
+  if (!donateLinks) {
+    await tgCall(token, 'sendMessage', { chat_id: chatId, text: 'Telegram сейчас не открыл оплату. Попробуй /donate чуть позже.' });
+    return;
+  }
   await tgCall(token, 'sendMessage', { chat_id: chatId, text: DONATE_TEXT, reply_markup: {
-    inline_keyboard: [STARS.map((n, i) => ({ text: `⭐ ${n}`, url: links[i] }))] } });
+    inline_keyboard: [STARS.map((n, i) => ({ text: `⭐ ${n}`, url: donateLinks[i] }))] } });
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Чисто</string>
-    <string name="motto">Война с рекламой вечна. Свет сильнее.</string>
+    <string name="motto">Без рекламы и слежки. Бесплатно.</string>
     <string name="on">Защита включена</string>
     <string name="off">Защита выключена</string>
     <string name="enable">Включить защиту</string>

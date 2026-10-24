@@ -8,7 +8,7 @@
 2. **Частный DNS** (Android 9+, только сервер с DoT). Кнопка копирует адрес и открывает настройки —
    включает пользователь сам. Если владелец телефона выдал права через adb, кнопка включает сама:
 
-       adb shell pm grant com.example.chisto android.permission.WRITE_SECURE_SETTINGS
+       adb shell pm grant cc.flownote.chisto android.permission.WRITE_SECURE_SETTINGS
 
 Нет: device admin, accessibility, обхода Play Protect, сбора данных. Зависимостей — ноль.
 

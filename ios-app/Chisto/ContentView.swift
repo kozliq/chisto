@@ -19,7 +19,7 @@ struct ContentView: View {
                 Text(ServerConfig.brand)
                     .font(.system(size: 52, weight: .bold, design: .serif))
                     .padding(.bottom, 4)
-                Text("Война с рекламой вечна. Свет сильнее.")
+                Text("Без рекламы и слежки. Бесплатно.")
                     .font(.system(size: 17, weight: .semibold, design: .serif))
                     .foregroundStyle(gold)
                     .padding(.bottom, 14)

@@ -1,0 +1,26 @@
+# Сторож: каждые 6 часов спрашивает живой сервер. Реклама должна блокироваться, обычные сайты — открываться.
+# Если что-то сломалось, GitHub пришлёт владельцу письмо о красной проверке.
+name: Сервер жив
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Фильтр отвечает как надо
+        run: node scripts/check-doh.mjs --host chisto.flownote.cc --no-dot
+      - name: Сайт и защита бота
+        run: |
+          test "$(curl -s -o /dev/null -w '%{http_code}' https://chisto.flownote.cc/)" = 200
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST https://chisto.flownote.cc/tg)" = 403

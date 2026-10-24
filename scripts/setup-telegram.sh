@@ -18,7 +18,7 @@ cd ..
 
 api() { curl -sS -X POST "https://api.telegram.org/bot${TOKEN}/$1" -H 'content-type: application/json' -d "$2"; echo; }
 api setWebhook "{\"url\":\"https://${DOH_HOST}/tg\",\"secret_token\":\"${SECRET}\",\"allowed_updates\":[\"message\",\"callback_query\",\"inline_query\",\"pre_checkout_query\"],\"drop_pending_updates\":true}"
-api setMyCommands '{"commands":[{"command":"start","description":"Как поставить"},{"command":"ios","description":"iPhone и iPad"},{"command":"android","description":"Android"},{"command":"desktop","description":"Компьютер"},{"command":"router","description":"Роутер"},{"command":"ext","description":"Прислать расширение файлом"},{"command":"donate","description":"Сказать спасибо звёздочкой"}]}'
+api setMyCommands '{"commands":[{"command":"start","description":"Как поставить"},{"command":"ios","description":"iPhone и iPad"},{"command":"android","description":"Android"},{"command":"desktop","description":"Компьютер"},{"command":"router","description":"Роутер"},{"command":"ext","description":"Прислать расширение файлом"},{"command":"donate","description":"Сказать спасибо звёздочкой"},{"command":"paysupport","description":"Вопрос по звёздам и возврат"}]}'
 api setMyShortDescription '{"short_description":"Убирает рекламу и трекеры. Бесплатно, без регистрации."}'
 api setMyDescription "{\"description\":\"Чисто — блокировка рекламы и трекеров для iPhone, Android, компьютера и роутера. Нажмите «Старт» и выберите устройство. Сайт: https://${DOH_HOST}/\"}"
 unset TOKEN SECRET

@@ -24,6 +24,9 @@
         <TextView android:id="@+id/mode" style="@style/Body" android:text="@string/vpn_notice"
             android:layout_width="match_parent" android:layout_height="wrap_content" />
 
+        <!-- Частный DNS (DoT, порт 853) есть только у своего сервера (VPS); у Worker его нет — блок прячем. -->
+        <LinearLayout android:id="@+id/privateDnsBlock" android:orientation="vertical"
+            android:layout_width="match_parent" android:layout_height="wrap_content">
         <View android:layout_width="match_parent" android:layout_height="1dp"
             android:layout_marginTop="28dp" android:layout_marginBottom="20dp" android:background="@color/line" />
 
@@ -35,6 +38,7 @@
             android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" />
         <TextView android:id="@+id/privateDnsNote" style="@style/Body"
             android:layout_width="match_parent" android:layout_height="wrap_content" />
+        </LinearLayout>
 
         <View android:layout_width="match_parent" android:layout_height="1dp"
             android:layout_marginTop="28dp" android:layout_marginBottom="20dp" android:background="@color/line" />

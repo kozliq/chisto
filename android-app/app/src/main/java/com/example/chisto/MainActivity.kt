@@ -40,6 +40,8 @@ class MainActivity : Activity() {
         }
 
         privateDns.setOnClickListener { onPrivateDns() }
+        // Без DoT на сервере «Частный DNS» оставил бы телефон без интернета — кнопку не показываем.
+        if (!BuildConfig.HAS_DOT) findViewById<android.view.View>(R.id.privateDnsBlock).visibility = android.view.View.GONE
     }
 
     override fun onResume() {
@@ -54,7 +56,8 @@ class MainActivity : Activity() {
 
     private fun startVpn() {
         startService(Intent(this, DnsVpnService::class.java))
-        render(true)
+        // Сервис включается не мгновенно и может не включиться — показываем то, что есть на деле.
+        status.postDelayed({ render(DnsVpnService.running) }, 700)
     }
 
     private fun render(on: Boolean) {

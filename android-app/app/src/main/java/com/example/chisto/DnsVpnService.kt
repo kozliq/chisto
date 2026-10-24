@@ -42,7 +42,7 @@ class DnsVpnService : VpnService() {
             .addRoute(FAKE_DNS, 32)
             .addDisallowedApplication(packageName) // наши DoH-запросы идут мимо туннеля
             .setBlocking(true)
-            .establish() ?: return
+            .establish() ?: run { stopSelf(); return }
         running = true
         val fd = tun!!.fileDescriptor
         reader = Thread({ loop(FileInputStream(fd), FileOutputStream(fd)) }, "dns-tun").apply { start() }
@@ -80,7 +80,7 @@ class DnsVpnService : VpnService() {
                 setRequestProperty("Content-Type", "application/dns-message")
                 setRequestProperty("Accept", "application/dns-message")
                 outputStream.use { it.write(query) }
-                if (responseCode != 200) null else inputStream.use { it.readBytes() }
+                if (responseCode != 200) Dns.servfail(query) else inputStream.use { it.readBytes() }
             }
         } catch (_: Exception) {
             Dns.servfail(query)

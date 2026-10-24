@@ -16,6 +16,7 @@
   "vars": {
     "DOH_PATH": "/dns-query",
     "UPSTREAM": "https://cloudflare-dns.com/dns-query",
-    "UPSTREAM_FALLBACK": "https://dns.google/dns-query"
+    "UPSTREAM_FALLBACK": "https://dns.google/dns-query",
+    "TG_BOT": "chisto_ads_bot"
   }
 }

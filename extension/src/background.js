@@ -66,7 +66,8 @@ ext.webNavigation.onCommitted.addListener(async ({ tabId, frameId, url }) => {
   const { useGenericFile, css } = await cssFor(host);
   const target = { tabId, frameIds: [frameId] };
   try {
-    if (useGenericFile) await ext.scripting.insertCSS({ target, files: ['cosmetic/generic.css'], origin: 'USER' });
+    // Общий CSS (~600 КБ) — только в саму страницу: в каждом iframe он тормозит тяжёлые сайты.
+    if (useGenericFile && frameId === 0) await ext.scripting.insertCSS({ target, files: ['cosmetic/generic.css'], origin: 'USER' });
     if (css.trim()) await ext.scripting.insertCSS({ target, css, origin: 'USER' });
   } catch {
     // Служебные страницы браузера и магазина расширений закрыты для расширений — это нормально.
@@ -76,7 +77,7 @@ ext.webNavigation.onCommitted.addListener(async ({ tabId, frameId, url }) => {
 const staticIds = () => ext.runtime.getManifest().declarative_net_request.rule_resources.map(r => r.id);
 
 // Пауза и сайты-исключения: одно правило allowAllRequests на сайт.
-async function applySettings() {
+async function applySettingsNow() {
   const s = await settings();
   const { remote } = await ext.storage.local.get({ remote: null });
   const old = (await ext.declarativeNetRequest.getDynamicRules()).filter(r => r.id >= ALLOW_SITE_BASE);
@@ -122,6 +123,30 @@ async function applyRemoteRules(rules) {
   }
 }
 
+// Правила с сервера — только блок/пропуск и подмена на наши пустышки. Даже если сервер угонят,
+// он не сможет перенаправить страницы, снять заголовки защиты или подсмотреть поля через CSS.
+const SAFE_ACTIONS = new Set(['block', 'allow', 'allowAllRequests']);
+const safeRule = (r) => r && typeof r === 'object' && r.condition && typeof r.condition === 'object' && (
+  SAFE_ACTIONS.has(r.action?.type) ||
+  (r.action?.type === 'redirect' && Object.keys(r.action.redirect ?? {}).join() === 'extensionPath' &&
+    /^\/redirects\/[\w.-]+$/.test(r.action.redirect.extensionPath)));
+const safeCss = (s) => typeof s === 'string' && s.length < 2000 && !/url\s*\(|@import|expression\s*\(|\\|\[\s*value/i.test(s);
+const strings = (a) => (Array.isArray(a) ? a.filter(safeCss) : []);
+
+function sanitizeRemote(remote) {
+  const c = remote.cosmetic && typeof remote.cosmetic === 'object' ? remote.cosmetic : {};
+  const map = (m) => Object.fromEntries(Object.entries(m && typeof m === 'object' ? m : {})
+    .map(([k, v]) => [k, { hide: strings(v?.hide), unhide: strings(v?.unhide), css: strings(v?.css) }]));
+  const names = (a) => (Array.isArray(a) ? a.filter((s) => typeof s === 'string') : []);
+  return {
+    version: remote.version,
+    replacesStatic: names(remote.replacesStatic),
+    dnr: remote.dnr.filter(safeRule),
+    cosmetic: { specific: map(c.specific), entity: map(c.entity), generic: strings(c.generic),
+      noGeneric: names(c.noGeneric), noCosmetic: names(c.noCosmetic) },
+  };
+}
+
 // Раз в 12 часов спрашиваем у нашего сервера свежий update.json. Отправляется только сам запрос
 // файла — без адресов страниц и истории. Ответ — данные (правила), не код.
 async function updateRules() {
@@ -130,23 +155,33 @@ async function updateRules() {
   try {
     const res = await fetch(updateUrl, { cache: 'no-cache', credentials: 'omit' });
     if (!res.ok) return;
-    const remote = await res.json();
+    const raw = await res.json();
     const { remote: current } = await ext.storage.local.get({ remote: null });
-    if (current?.version === remote.version || !Array.isArray(remote.dnr)) return;
-    await ext.storage.local.set({ remote, updatedAt: Date.now() });
-    await applySettings();
+    if (current?.version === raw.version || !Array.isArray(raw.dnr)) return;
+    await ext.storage.local.set({ remote: sanitizeRemote(raw), updatedAt: Date.now() });
+    try {
+      await applySettings();
+    } catch {
+      // Новые правила не встали — возвращаем прежние, чтобы через 12 часов попробовать снова.
+      await ext.storage.local.set({ remote: current });
+      await applySettings();
+    }
   } catch {
     // Нет сети или сервер недоступен — работаем на встроенных правилах.
   }
 }
 
+// Применение настроек — строго по очереди: иначе два вызова сразу дают «id must be unique».
+let queue = Promise.resolve();
+const applySettings = () => (queue = queue.catch(() => {}).then(applySettingsNow));
+
 ext.storage.onChanged.addListener((changes) => {
-  if ('paused' in changes || 'allowSites' in changes) applySettings();
+  if ('paused' in changes || 'allowSites' in changes) applySettings().catch(() => {});
 });
 ext.runtime.onInstalled.addListener(async () => {
-  await applySettings();
+  await applySettings().catch(() => {});
   ext.alarms.create('update', { periodInMinutes: UPDATE_EVERY_MIN, delayInMinutes: 1 });
   updateRules();
 });
-ext.runtime.onStartup?.addListener(() => { applySettings(); });
+ext.runtime.onStartup?.addListener(() => { applySettings().catch(() => {}); });
 ext.alarms.onAlarm.addListener((a) => { if (a.name === 'update') updateRules(); });

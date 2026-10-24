@@ -124,11 +124,16 @@ for (const u of BROWSER_LISTS) {
 // внутри списка сначала правила без привязки к сайтам — они полезны везде.
 // Что не влезло — уходит в update.json и ставится как динамические правила.
 const regex = { regex: DNR_REGEX };
-const customDnr = toDnr(custom.network, { rules: Infinity, ...regex });
+// Один общий бюджет регулярок: каждый список вычитает из него то, что потратил.
+const customBudget = { rules: Infinity, regex: regex.regex };
+const customDnr = toDnr(custom.network, customBudget);
+regex.regex = customBudget.regex;
 const rulesets = [{ id: 'custom', ...customDnr }];
 let left = DNR_STATIC - customDnr.rules.length;
 for (const u of upstream.filter(u => u.share === 'all')) {
-  const r = toDnr(u.network, { rules: left, regex: regex.regex });
+  const b = { rules: left, regex: regex.regex };
+  const r = toDnr(u.network, b);
+  regex.regex = b.regex;
   left -= r.rules.length;
   rulesets.push({ id: u.id, ...r });
 }
@@ -191,7 +196,7 @@ for (const target of ['chrome', 'firefox']) {
   };
   if (target === 'firefox') {
     manifest.background = { scripts: ['background.js'], type: 'module' };
-    manifest.browser_specific_settings = { gecko: { id: 'chisto@example.com', strict_min_version: '128.0' } };
+    manifest.browser_specific_settings = { gecko: { id: 'chisto@flownote.cc', strict_min_version: '128.0' } };
   } else {
     manifest.background = { service_worker: 'background.js', type: 'module' };
     manifest.minimum_chrome_version = '121';

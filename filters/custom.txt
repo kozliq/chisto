@@ -18,13 +18,15 @@
 ||mc.yandex.ru^
 ||top-fwz1.mail.ru^
 ||counter.yadro.ru^
-! Тестовый домен для проверки из docs/CHECKLIST.md (в реальной жизни не существует).
+! Тестовый домен для проверки (scripts/check-doh.mjs), в реальной жизни не существует.
 ||chisto-test-ad.invalid^
 
 ! ───────────── 2. Сеть: только в браузере (в DNS не пойдут) ─────────────
 ! Блок по пути: сам хост нужен сайтам, режем только рекламный скрипт.
 ||yastatic.net/partner-code/$script
 ||vk.com/js/api/adman_init.js
+! Rutube: плеер берёт отсюда рекламные вставки перед роликом, само видео идёт с других адресов.
+||rutube.ru/api/advert/$xmlhttprequest
 ! Только сторонние запросы: на самом сайте ресурс не трогаем.
 ||adriver.ru^$third-party
 ||criteo.com^$third-party
