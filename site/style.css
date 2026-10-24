@@ -32,15 +32,15 @@ h2 { font-size: clamp(25px, 3vw, 32px); line-height: 1.15; font-weight: 700; mar
 h3 { font-size: 21px; font-weight: 700; margin: 36px 0 8px; }
 
 /* шапка */
-.bar { max-width: 1160px; margin: 0 auto; padding: 22px var(--pad) 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.bar { max-width: 1000px; margin: 0 auto; padding: 22px var(--pad) 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 22px/1 var(--font); }
 .brand img { width: 26px; height: auto; }
 .bar nav { display: flex; gap: 22px; font-size: 17px; }
 
 /* первый экран: герб и текст на одной оси */
-.hero { max-width: 1160px; margin: 0 auto; padding: clamp(28px, 6vh, 72px) var(--pad) clamp(28px, 5vh, 56px);
-  display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: clamp(28px, 6vw, 88px); align-items: center; }
-.crest { width: 100%; max-width: 340px; height: auto; justify-self: end; }
+.hero { max-width: 1000px; margin: 0 auto; padding: clamp(28px, 6vh, 72px) var(--pad) clamp(28px, 5vh, 56px);
+  display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: clamp(28px, 6vw, 72px); align-items: center; }
+.crest { width: 100%; max-width: 300px; height: auto; }
 .hero-text { max-width: 560px; }
 h1 { font-size: clamp(64px, 11vw, 128px); line-height: .92; font-weight: 700; letter-spacing: -0.01em; }
 h1::after { content: ""; display: block; width: 72px; height: 3px; background: var(--red); margin: 26px 0 24px; }
@@ -53,15 +53,9 @@ h1::after { content: ""; display: block; width: 72px; height: 3px; background: v
 .status.warn .dot { background: var(--warn); }
 .status.bad .dot { background: var(--bad); }
 
-/* середина: установка по центру, мемы по бокам */
-.page { max-width: 1400px; margin: 0 auto; padding: 0 var(--pad); display: grid; grid-template-columns: 1fr minmax(0, 720px) 1fr; gap: 56px; }
-main { grid-column: 2; padding-bottom: 24px; }
-.memes { padding-top: 120px; }
-.memes-l { grid-column: 1; grid-row: 1; }
-.memes-r { grid-column: 3; grid-row: 1; padding-top: 360px; }
-.memes figure { margin: 0 0 120px; }
-.memes img { display: block; width: 100%; height: auto; }
-.memes figcaption { margin-top: 10px; font-size: 17px; line-height: 1.35; font-weight: 700; color: var(--text); }
+/* середина: одна колонка, по одной оси с шапкой и гербом */
+main { max-width: 1000px; margin: 0 auto; padding: 0 var(--pad) 24px; }
+main p, main ol, main dd, main details { max-width: 46em; }
 
 /* выбор устройства */
 .platforms { display: flex; flex-wrap: wrap; gap: 6px 30px; padding: 16px 0 14px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -100,12 +94,11 @@ dd.no { color: var(--text); }
 
 /* подвал */
 footer { background: var(--deep); margin-top: 56px; }
-.foot { max-width: 720px; margin: 0 auto; padding: 8px 16px 56px; color: var(--muted); font-size: 17px; line-height: 1.5; }
+.foot { max-width: 1000px; margin: 0 auto; padding: 8px var(--pad) 56px; color: var(--muted); font-size: 17px; line-height: 1.5; }
+.foot > p, .foot dl, .foot details, .ksd { max-width: 46em; }
 footer code { font-size: 17px; color: var(--muted); }
 #tgLine { padding-top: 40px; margin: 0; color: var(--text); font-size: 18px; }
-.more-title { font-size: 26px; margin-top: 44px; color: var(--text); }
-.more dt { margin-top: 16px; font-size: 18px; }
-.more dd { font-size: 17px; }
+.more { margin: 36px 0 0; }
 .ksd { display: flex; align-items: center; gap: 16px; margin: 40px 0 8px; padding: 22px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-decoration: none; color: var(--text); font-size: 18px; line-height: 1.45; }
 .ksd img { width: 44px; height: 44px; flex: none; }
 .ksd u { text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 4px; }
@@ -115,17 +108,7 @@ footer code { font-size: 17px; color: var(--muted); }
 .donate p { font-size: 17px; }
 .donate code { display: block; margin: 6px 0 10px; font-size: 17px; color: var(--text); }
 .donate .warn { font-size: 15px; }
-.credits { font-size: 15px; margin-top: 20px; }
 
-/* без боковых полей мемы уходят вниз, двумя колонками */
-@media (max-width: 1239px) {
-  .page { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); max-width: 760px; column-gap: 28px; row-gap: 0; }
-  main { grid-column: 1 / -1; grid-row: 1; }
-  .memes { padding-top: 24px; }
-  .memes-l { grid-column: 1; grid-row: 2; border-top: 1px solid var(--line); }
-  .memes-r { grid-column: 2; grid-row: 2; border-top: 1px solid var(--line); padding-top: 24px; }
-  .memes figure { margin-bottom: 36px; }
-}
 @media (max-width: 720px) {
   .hero { grid-template-columns: 1fr; gap: 18px; padding-top: 24px; }
   .crest { justify-self: start; width: 124px; }
@@ -136,6 +119,5 @@ footer code { font-size: 17px; color: var(--muted); }
 @media (max-width: 420px) {
   body { font-size: 17px; }
   .action { font-size: 19px; }
-  .memes figcaption { font-size: 16px; }
 }
 [hidden] { display: none !important; }

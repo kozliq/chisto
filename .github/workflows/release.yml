@@ -1,0 +1,52 @@
+# Релиз по тегу v*: GitHub сам собирает расширение из этого кода и прикладывает подтверждение
+# происхождения. Проверить файл: gh attestation verify chisto-chrome.zip --owner kozliq
+name: Релиз
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Тесты
+        run: |
+          node --test cloudflare/test.mjs
+          node --test extension/test.mjs
+      - name: Публичные настройки сборки
+        # Только открытые значения: адрес сервера и имя бота. Секретов здесь нет.
+        run: |
+          printf 'DOH_HOST=chisto.flownote.cc\nDOH_PATH=/dns-query\nBRAND_NAME=Чисто\nPROFILE_ID=cc.flownote.chisto\nTG_BOT=chisto_ads_bot\n' > .env
+      - name: Сборка расширения со свежими списками
+        run: node tools/build.mjs
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: site/dl/chisto-*.zip
+      - name: Контрольные суммы
+        run: cd site/dl && sha256sum chisto-*.zip > SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            site/dl/chisto-chrome.zip
+            site/dl/chisto-firefox.zip
+            site/dl/SHA256SUMS.txt
+          body: |
+            **Поставить:** https://chisto.flownote.cc · **Бот:** [@chisto_ads_bot](https://t.me/chisto_ads_bot)
+
+            - `chisto-chrome.zip` — Chrome, Яндекс Браузер, Edge, Opera, Brave: распаковать в постоянную папку → `chrome://extensions` → «Режим разработчика» → «Загрузить распакованное».
+            - `chisto-firefox.zip` — Firefox: `about:debugging` → «Этот Firefox» → «Загрузить временное дополнение».
+
+            Архивы собраны GitHub из этого кода. Проверить:
+            ```
+            gh attestation verify chisto-chrome.zip --owner kozliq
+            ```

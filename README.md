@@ -5,7 +5,8 @@
 <p align="center">
   <a href="https://chisto.flownote.cc"><img alt="Сайт" src="https://img.shields.io/badge/%D1%81%D0%B0%D0%B9%D1%82-chisto.flownote.cc-873730?style=for-the-badge"></a>
   <a href="https://t.me/chisto_ads_bot"><img alt="Бот в Telegram" src="https://img.shields.io/badge/Telegram-%40chisto__ads__bot-873730?style=for-the-badge&logo=telegram&logoColor=white"></a>
-  <a href="https://github.com/kozliq/chisto/releases"><img alt="Версия" src="https://img.shields.io/badge/%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F-0.1.0-1c1a1b?style=for-the-badge"></a>
+  <a href="https://github.com/kozliq/chisto/releases/latest"><img alt="Версия" src="https://img.shields.io/github/v/release/kozliq/chisto?label=%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F&color=1c1a1b&style=for-the-badge"></a>
+  <a href="https://github.com/kozliq/chisto/actions/workflows/ci.yml"><img alt="Проверка" src="https://img.shields.io/github/actions/workflow/status/kozliq/chisto/ci.yml?label=%D1%82%D0%B5%D1%81%D1%82%D1%8B&style=for-the-badge"></a>
   <img alt="iPhone, Android, компьютер, роутер" src="https://img.shields.io/badge/iPhone%20%C2%B7%20Android%20%C2%B7%20%D0%BA%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%20%C2%B7%20%D1%80%D0%BE%D1%83%D1%82%D0%B5%D1%80-1c1a1b?style=for-the-badge">
   <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/%D0%BB%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F-MIT-1c1a1b?style=for-the-badge"></a>
 </p>
@@ -37,6 +38,17 @@
 <p align="center">
   <img src=".github/assets/free.png" width="100%" alt="0 рублей, 0 рекламы и трекеров, 0 регистраций и аккаунтов">
 </p>
+
+## Почему этому можно доверять
+
+Блокировщик стоит между вами и интернетом, поэтому доверие надо заслужить, а не попросить.
+
+- **Сервер видит только имена сайтов.** Через него идёт DNS, а не ваш трафик: страницы, пароли и переписка идут напрямую.
+- **Ничего не собираем.** Ни аккаунтов, ни журналов, ни аналитики — [docs/PRIVACY.md](docs/PRIVACY.md).
+- **Весь код открыт**, а архивы расширения в [релизах](https://github.com/kozliq/chisto/releases) собирает GitHub с подтверждением происхождения — можно проверить, что файл собран из этого кода.
+- **Даже если сервер угонят**, расширение не примет от него ничего опасного: только «заблокировать» и «разрешить».
+- **Тесты на каждое изменение** и проверка живого сервера каждые 6 часов.
+- **Выключается в два касания** — инструкции в [SECURITY.md](SECURITY.md#как-выключить). Там же — куда писать, если нашли дыру.
 
 ## Установка
 
