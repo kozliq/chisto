@@ -4,35 +4,50 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0a1024">
-<link rel="preload" href="fonts/literata-cyrillic-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#1c1a1b">
+<link rel="preload" href="fonts/tinos-cyrillic-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/tinos-cyrillic-700.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="referrer" content="no-referrer">
 <title>Чисто — блокировка рекламы</title>
-<meta name="description" content="Блокировка рекламы и трекеров для телефона и компьютера. Без регистрации.">
+<meta name="description" content="Убирает рекламу и слежку на телефоне и компьютере. Бесплатно, без регистрации и аккаунта.">
 <!-- Картинка для ссылок: адрес абсолютный — поменяйте на свой домен -->
 <meta property="og:title" content="Чисто — блокировка рекламы">
-<meta property="og:description" content="Война с рекламой вечна. Свет сильнее. Бесплатно, без регистрации.">
+<meta property="og:description" content="Убирает рекламу и слежку на телефоне и компьютере. Бесплатно, без регистрации и аккаунта.">
 <meta property="og:image" content="https://chisto.flownote.cc/og.png">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="icon" href="icon.png" type="image/png">
+<link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="stylesheet" href="style.css">
 <script src="config.js"></script>
 <script src="app.js" defer></script>
 </head>
 <body>
-<main>
-  <header class="top">
-    <img class="crest" src="crest.svg" width="168" height="218" alt="Герб «Чисто»: Прометей с факелом пронзает гидру-рекламу, девиз LUX FORTIOR — свет сильнее">
-    <div>
-      <h1 data-brand>Чисто</h1>
-      <p class="motto">Война с&nbsp;рекламой вечна. Свет&nbsp;сильнее.</p>
-      <p class="lead">Убирает рекламу и&nbsp;трекеры. Без регистрации и&nbsp;без&nbsp;аккаунта.</p>
-      <p class="status" id="status" aria-live="polite"><span class="dot"></span><span id="statusText">Проверяю сервер…</span></p>
-    </div>
-  </header>
+<div class="bar">
+  <a class="brand" href="./"><img src="crest-sm.webp" alt="" width="26" height="33"><span data-brand>Чисто</span></a>
+  <nav aria-label="Ссылки">
+    <a href="https://github.com/kozliq/chisto" rel="noopener">GitHub</a>
+    <a href="https://t.me/chisto_ads_bot" rel="noopener" id="barTg">Бот в Telegram</a>
+  </nav>
+</div>
 
+<header class="hero">
+  <img class="crest" src="crest.webp" width="600" height="763" alt="Герб «Чисто»: мангуст против кобры — мы против рекламы и слежки">
+  <div class="hero-text">
+    <h1 data-brand>Чисто</h1>
+    <p class="lead">Убирает рекламу и&nbsp;слежку на&nbsp;телефоне и&nbsp;компьютере.</p>
+    <p class="facts">Бесплатно. Без регистрации и&nbsp;аккаунта.</p>
+    <p class="status" id="status" aria-live="polite"><span class="dot"></span><span id="statusText">Проверяю сервер…</span></p>
+  </div>
+</header>
+
+<div class="page">
+<aside class="memes memes-l" aria-label="Мемы">
+  <figure><img src="memes/zombies-horde.webp" width="520" height="374" loading="lazy" alt="Толпа зомби из фильма «Ночь живых мертвецов»"><figcaption>Баннеры, которые вы закрыли вчера</figcaption></figure>
+  <figure><img src="memes/fox-geese.webp" width="520" height="416" loading="lazy" alt="Средневековая миниатюра: лис в рясе проповедует гусям"><figcaption>Реклама кредита объясняет, почему он вам срочно нужен</figcaption></figure>
+  <figure><img src="memes/knight-snail.webp" width="520" height="291" loading="lazy" alt="Средневековая миниатюра: рыцарь с копьём скачет на улитку"><figcaption>Когда ищешь крестик на&nbsp;рекламе размером с&nbsp;пиксель</figcaption></figure>
+</aside>
+
+<main>
   <nav class="platforms" aria-label="Устройство">
     <a href="#ios" data-p="ios">iPhone и iPad</a>
     <a href="#android" data-p="android">Android</a>
@@ -43,6 +58,8 @@
 
   <!-- ─── iPhone ─── -->
   <section id="p-ios" data-section="ios" hidden>
+    <h2>Профиль — для всего iPhone</h2>
+    <p>Работает во&nbsp;всех приложениях и&nbsp;браузерах, включая Chrome и&nbsp;Яндекс&nbsp;Браузер.</p>
     <a class="action" href="dl/chisto.mobileconfig" download>
       <span class="mark" aria-hidden="true">↓</span><span>Скачать профиль для iPhone</span>
     </a>
@@ -54,8 +71,8 @@
       <li>Ещё раз «Установить». iOS напишет «Не подписан» — честно: чужими сертификатами не подписываем.</li>
     </ol>
     <p class="hint">Уже стоит другой DNS или VPN? Тогда ещё один шаг: Настройки → Основные → VPN и управление устройством → DNS → <b data-brand>Чисто</b>.</p>
-    <p class="hint">Удалить: Настройки → Основные → VPN и управление устройством → профиль → «Удалить профиль». После удаления ничего не остаётся.</p>
-    <p class="hint">Профиль работает во всех приложениях, включая Chrome и Яндекс Браузер на iPhone. Расширения в браузерах на iPhone Apple ставить не даёт — ни в Chrome, ни в других.</p>
+    <p class="hint">Расширения в браузерах на iPhone Apple ставить не даёт — ни в Chrome, ни в других. Поэтому профиль.</p>
+    <p class="off"><b>Как выключить</b>, если какой-то сайт не открывается: Настройки → Основные → VPN и управление устройством → профиль <span data-brand>Чисто</span> → «Удалить профиль». После удаления ничего не остаётся.</p>
     <div id="iosApp" hidden>
       <h3>Приложение</h3>
       <p>То же самое, но включается одной кнопкой и добавляет блокировщик для Safari.</p>
@@ -90,40 +107,44 @@
         <li>Подтвердите системное окно «Запрос на подключение» — это и есть локальный VPN.</li>
       </ol>
     </div>
-    <h2>Только в Chrome — за&nbsp;минуту</h2>
-    <p>Если приложение ставить не хочется: защищён будет только браузер Chrome.</p>
-    <p class="count">Скопировать и 3 касания в настройках Chrome.</p>
-    <a class="action small" href="#" id="copyDoh">
-      <span class="mark" aria-hidden="true">⧉</span><span>Скопировать адрес DoH</span>
+    <h2 id="chromeTitle">Chrome на Android — за&nbsp;минуту</h2>
+    <p id="chromeIntro">Реклама и&nbsp;слежка уберутся на&nbsp;сайтах в&nbsp;Chrome. Приложение для всего телефона&nbsp;— в&nbsp;работе.</p>
+    <a class="action" href="#" id="copyDoh">
+      <span class="mark" aria-hidden="true">⧉</span><span>Скопировать адрес</span>
     </a>
+    <p class="count">Скопировать и 3 касания в настройках Chrome.</p>
     <ol class="steps">
-      <li>Chrome → ⋮ → Настройки → Конфиденциальность и безопасность → Использовать безопасный DNS.</li>
-      <li>«Выбрать другого поставщика» → «Свой» → вставьте адрес.</li>
+      <li>Chrome → ⋮ (справа вверху) → Настройки → Конфиденциальность и безопасность.</li>
+      <li>«Использовать безопасный DNS» → включить → «Свой» (или «Выбрать другого поставщика» → «Свой»).</li>
+      <li>Вставьте адрес <code data-doh></code> — готово, сохранять не нужно.</li>
     </ol>
+    <p class="hint">«Частный DNS» в&nbsp;настройках самого Android сюда не&nbsp;подходит: он требует другой протокол, и&nbsp;интернет пропадёт.</p>
+    <p class="off"><b>Как выключить</b>, если какой-то сайт не открывается: Chrome → Настройки → Конфиденциальность и безопасность → «Использовать безопасный DNS» → выключить.</p>
   </section>
 
   <!-- ─── Компьютер ─── -->
   <section id="p-desktop" data-section="desktop" hidden>
     <h2>Расширение для браузера</h2>
     <p>Основной способ для сайтов: режет рекламу, прячет баннеры и стены «отключите блокировщик». Chrome, Edge, Яндекс Браузер, Opera, Brave, Firefox.</p>
-    <p class="count" id="extCount">Из магазина — 1 клик. Из архива — 3 шага, один раз.</p>
     <a class="action" href="#" id="extLink">
       <span class="mark" aria-hidden="true">+</span><span id="extLabel">Установить расширение</span>
     </a>
+    <p class="count" id="extCount">Из магазина — 1 клик. Из архива — 3 шага, один раз.</p>
     <div id="extManual">
-      <p class="hint" id="extManualNote">В магазине расширение пока не опубликовано — ставится из архива за три шага:</p>
+      <p class="hint" id="extManualNote">В магазинах расширения пока нет — ставится из архива с сайта (или файлом из бота <a href="https://t.me/chisto_ads_bot" rel="noopener">@chisto_ads_bot</a>) за три шага:</p>
       <ol class="steps" id="stepsChrome">
-        <li>Распакуйте скачанный архив в папку, которую не будете удалять.</li>
-        <li>Откройте <code>chrome://extensions</code> и включите «Режим разработчика» справа вверху.</li>
+        <li>Распакуйте архив в папку, которую не будете удалять.</li>
+        <li>Откройте <code>chrome://extensions</code> (в Edge, Opera и Яндекс Браузере адрес тот же) и включите «Режим разработчика».</li>
         <li>«Загрузить распакованное» → выберите эту папку.</li>
       </ol>
       <ol class="steps" id="stepsFirefox" hidden>
         <li>Откройте <code>about:debugging#/runtime/this-firefox</code>.</li>
         <li>«Загрузить временное дополнение» → выберите скачанный архив.</li>
-        <li>Временное дополнение исчезнет после перезапуска Firefox. Постоянно — только после публикации в addons.mozilla.org.</li>
+        <li>Честно: временное дополнение исчезнет после перезапуска Firefox. Постоянно — только после публикации в addons.mozilla.org.</li>
       </ol>
       <p class="hint">Другой браузер: <a href="dl/chisto-chrome.zip" download>архив для Chrome и похожих</a> · <a href="dl/chisto-firefox.zip" download>архив для Firefox</a></p>
     </div>
+    <p class="off"><b>Как выключить</b>, если какой-то сайт не открывается: значок расширения → «Выключить на этом сайте» или «Поставить на паузу везде».</p>
 
     <h2>DNS — по желанию</h2>
     <p>Режет рекламные домены не только на страницах, но и в программах.</p>
@@ -132,9 +153,10 @@
       <ol class="steps">
         <li>Настройки → Конфиденциальность и безопасность → Безопасность → «Использовать безопасный DNS».</li>
         <li>«Выбрать поставщика» → «Свой» → <code data-doh></code>.</li>
+        <li>Выключить — там же, переключателем.</li>
       </ol>
     </details>
-    <details>
+    <details data-needs-ip>
       <summary>Windows 11</summary>
       <ol class="steps">
         <li>Параметры → Сеть и Интернет → Wi-Fi или Ethernet → свойства оборудования → «Назначение DNS-сервера» → Изменить → Вручную.</li>
@@ -143,11 +165,11 @@
       </ol>
     </details>
     <details>
-      <summary>macOS</summary>
+      <summary>macOS — для всех программ</summary>
       <ol class="steps">
         <li>Скачайте <a href="dl/chisto.mobileconfig" download>тот же профиль, что для iPhone</a>.</li>
         <li>Системные настройки → Основные → Управление устройствами (в старых macOS — «Профили») → двойной клик по профилю → Установить, пароль Mac.</li>
-        <li>Удалить: там же, кнопка «−».</li>
+        <li>Выключить: там же, кнопка «−».</li>
       </ol>
     </details>
     <details data-needs-dot>
@@ -170,27 +192,59 @@
       <li><span data-needs-dot>DoT: <code data-host></code>, порт 853. </span>DoH: <code data-doh></code>.</li>
       <li>Отключите «DNS провайдера», иначе роутер будет ходить мимо.</li>
     </ol>
-    <p class="hint">Подробно по моделям — в docs/ROUTER.md репозитория.</p>
+    <p class="hint">Подробно по моделям — <a href="https://github.com/kozliq/chisto/blob/main/docs/ROUTER.md" rel="noopener">инструкция на GitHub</a>.</p>
+    <p class="off"><b>Как выключить</b>: в тех же настройках верните «DNS провайдера».</p>
   </section>
 
   <section class="levels">
     <h2>Что убирается, а что нет</h2>
     <dl>
       <dt>Сайты в браузере</dt>
-      <dd>Расширение. Основной эффект: баннеры, всплывающие оверлеи, счётчики.</dd>
+      <dd>Расширение. Основной эффект: баннеры, всплывающие окна, счётчики слежки.</dd>
       <dt>Приложения и система</dt>
       <dd>DNS. Отрезает отдельные рекламные и трекерные домены. Не убирает рекламу, которая приходит с того же адреса, что и сам контент.</dd>
       <dt class="no">YouTube, TikTok, Instagram</dt>
       <dd class="no">Официальные приложения не поддерживаются: их реклама идёт с тех же серверов, что и видео. Ни профиль, ни приложение её не уберут.</dd>
     </dl>
   </section>
-
-  <footer>
-    <p id="tgLine" hidden>Скинуть другу проще через бота: <a id="tgLink" href="#" rel="noopener"></a> — там те же кнопки.</p>
-    <p class="sign">Сделал Прометей — бесплатно и от души. Сайты у нас тоже без рекламы: <a href="https://ksd.flownote.cc/" rel="noopener">глянуть</a>.</p>
-    <p>Что видит сервер: только DNS-запрос (имя сайта) — чтобы ответить на него. Журнал запросов выключен, адреса страниц и трафик сайтов через сервер не идут.</p>
-    <p class="host-line">Сервер: <code data-host></code> · DoH: <code data-doh></code></p>
-  </footer>
 </main>
+
+<aside class="memes memes-r" aria-label="Ещё мемы">
+  <figure><img src="memes/zombie-window.webp" width="520" height="395" loading="lazy" alt="Зомби заглядывает в окно — кадр из «Ночи живых мертвецов»"><figcaption>Всплывающее окно после третьего «Закрыть»</figcaption></figure>
+  <figure><img src="memes/rabbit.webp" width="520" height="425" loading="lazy" alt="Средневековая миниатюра: заяц с мечом над человеком"><figcaption>Чисто и трекер, который хотел за&nbsp;вами последить</figcaption></figure>
+  <figure><img src="memes/castle.webp" width="520" height="257" loading="lazy" alt="Средневековая миниатюра: дама обороняет замок от рыцарей"><figcaption>Ваш браузер после установки Чисто</figcaption></figure>
+</aside>
+</div>
+
+<footer>
+  <div class="foot">
+    <p id="tgLine" hidden>Скинуть другу проще через бота: <a id="tgLink" href="#" rel="noopener"></a> — там те же кнопки.</p>
+
+    <h2 class="more-title">Ещё от нас — тоже бесплатно</h2>
+    <dl class="more">
+      <dt><a href="https://kachalka.flownote.cc/" rel="noopener">Качалка</a></dt>
+      <dd>Видео из YouTube, TikTok, VK и Instagram в mp4 — без водяных знаков.</dd>
+      <dt><a href="https://github.com/kozliq/Tolkovo" rel="noopener">Толково</a></dt>
+      <dd>Голосовой ввод для Mac: сказал — текст уже там, где курсор.</dd>
+    </dl>
+
+    <a class="ksd" href="https://ksd.flownote.cc/?from=chisto" rel="noopener" aria-label="Студия KSD — другие работы автора">
+      <img src="ksd.svg" alt="" width="44" height="44">
+      <span><b>Чисто сделала студия KSD</b> — бесплатно и от души. Сайты у нас тоже без рекламы: <u>глянуть</u></span>
+    </a>
+
+    <details class="donate" id="donate">
+      <summary>Если хочется сказать спасибо</summary>
+      <p>Чисто бесплатное и таким останется. Ничего не просим — это просто на кофе, и ни на что не влияет.</p>
+      <code id="btcAddr">bc1qr2nqfktv7ywvus02qfa8k4cd2jak6mkhg357zy</code>
+      <p><a href="#" id="btcCopy">Скопировать адрес</a> · Bitcoin (BTC), только основная сеть</p>
+      <p class="warn">Сверяйте адрес с <a href="https://github.com/kozliq/chisto/blob/main/DONATE.md" rel="noopener">DONATE.md в репозитории</a>, а не с сообщениями и скриншотами. Звёздочками Telegram — командой /donate в боте.</p>
+    </details>
+
+    <p>Что видит сервер: только DNS-запрос (имя сайта) — чтобы ответить на него. Журнал запросов выключен, адреса страниц и трафик сайтов через сервер не идут. Код открыт: <a href="https://github.com/kozliq/chisto" rel="noopener">github.com/kozliq/chisto</a>.</p>
+    <p class="host-line">Сервер: <code data-host></code> · DoH: <code data-doh></code></p>
+    <p class="credits">Картинки в мемах — общественное достояние: фильм «Ночь живых мертвецов» (1968) и средневековые рукописи. Подписи наши.</p>
+  </div>
+</footer>
 </body>
 </html>

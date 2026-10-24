@@ -15,7 +15,13 @@
   if (cfg.brand) document.title = `${cfg.brand} — блокировка рекламы`;
   // У варианта на Cloudflare Worker нет DoT (порт 853): прячем то, что без него не работает.
   if (!cfg.hasDot) $$('[data-needs-dot]').forEach((e) => e.remove());
-  if (!cfg.apkReady) $('#apkBlock').remove();
+  // Без своего IP (вариант на Worker) ручная настройка Windows невозможна — там нужен адрес сервера.
+  if (!cfg.serverIp) $$('[data-needs-ip]').forEach((e) => e.remove());
+  if (cfg.apkReady) {
+    $('#chromeTitle').textContent = 'Только в Chrome — за минуту';
+    $('#chromeIntro').textContent = 'Если приложение ставить не хочется: защищён будет только браузер Chrome.';
+  } else $('#apkBlock').remove();
+  if (cfg.tgBot) $('#barTg').href = `https://t.me/${cfg.tgBot}`;
 
   // ── устройство ──
   const ua = navigator.userAgent;
@@ -56,6 +62,12 @@
       catch { label.textContent = `Выделите и скопируйте: ${value}`; }
     });
   }
+  const btc = $('#btcCopy');
+  if (btc) btc.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try { await navigator.clipboard.writeText($('#btcAddr').textContent); btc.textContent = 'Скопировано'; }
+    catch { btc.textContent = 'Выделите адрес выше и скопируйте'; }
+  });
   copyOnClick('#copyHost', cfg.dohHost, 'Скопировано — вставьте в «Частный DNS»');
   copyOnClick('#copyDoh', `https://${cfg.dohHost}${dohPath}`, 'Скопировано — вставьте в Chrome');
 
@@ -69,6 +81,7 @@
     $('#extCount').textContent = '1 клик — «Установить» в магазине.';
   } else {
     $('#extCount').textContent = '3 шага, один раз. Потом правила обновляются сами.';
+    if (cfg.tgBot) $('#extManualNote').innerHTML = `В магазинах расширения пока нет — ставится из архива с сайта (или файлом из бота <a href="https://t.me/${cfg.tgBot}" rel="noopener">@${cfg.tgBot}</a>) за три шага:`;
     ext.href = isFirefox ? 'dl/chisto-firefox.zip' : 'dl/chisto-chrome.zip';
     ext.setAttribute('download', '');
     $('#extLabel').textContent = isFirefox ? 'Скачать расширение для Firefox' : 'Скачать расширение';
@@ -77,7 +90,7 @@
   $('#stepsFirefox').hidden = !isFirefox;
   if (isMacSafari) {
     $('#extLabel').textContent = 'Расширение для Chrome / Firefox';
-    $('#extManualNote').textContent = 'Для Safari на Mac расширения нет — поставьте профиль DNS ниже (раздел macOS). Для других браузеров:';
+    $('#extManualNote').textContent = 'Для Safari на Mac расширения нет — поставьте профиль ниже (раздел «macOS»). Для других браузеров:';
   }
 
   // ── Статус фильтра: два DoH-запроса ──

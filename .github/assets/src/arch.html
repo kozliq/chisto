@@ -1,0 +1,27 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+:root{--w:1280px;--h:520px}
+body{padding:56px 56px;display:grid;grid-template-columns:270px 150px 1fr 150px 250px;align-items:center}
+.col h4{font-size:18px;color:var(--muted);font-weight:400;letter-spacing:1px;text-transform:uppercase;margin-bottom:18px}
+.dev{font-size:30px;font-weight:700;padding:14px 0;border-bottom:1px solid var(--line)}
+.dev span{display:block;font-size:19px;font-weight:400;color:var(--muted);margin-top:4px}
+.arrow{height:3px;background:var(--red);position:relative;margin:0 22px}
+.arrow:after{content:"";position:absolute;right:-2px;top:-7px;border:8px solid transparent;border-left:12px solid var(--red)}
+.arrow i{position:absolute;top:-34px;left:0;right:0;text-align:center;white-space:nowrap;font-style:normal;font-size:19px;color:var(--muted)}
+.core{text-align:center}
+.core img{width:150px}
+.core b{display:block;white-space:nowrap;font-size:32px;margin-top:6px}
+.core span{display:block;white-space:nowrap;font-size:18px;color:var(--muted);margin-top:8px;line-height:1.35}
+.out b{display:block;font-size:28px}
+.out span{display:block;font-size:19px;color:var(--muted);margin-top:6px;line-height:1.35}
+.out .z{margin-top:34px}
+</style>
+<div class="col"><h4>Устройства</h4>
+<div class="dev">iPhone<span>DNS-профиль</span></div>
+<div class="dev">Android<span>Chrome или приложение</span></div>
+<div class="dev">Компьютер<span>расширение + правила</span></div>
+<div class="dev">Роутер<span>вся квартира</span></div></div>
+<div class="arrow"><i>только имена</i></div>
+<div class="core"><img src="../../../brand/kit/crest-2048.png" alt=""><b>Cloudflare Worker</b><span>DoH-фильтр · 223 тыс. доменов<br>сайт · бот · правила раз в 12 ч</span></div>
+<div class="arrow"><i>ответ</i></div>
+<div class="out"><b>0.0.0.0</b><span>реклама не грузится</span><div class="z"><b>Публичный DNS</b><span>обычные сайты<br>открываются</span></div></div>

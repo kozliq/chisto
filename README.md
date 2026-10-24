@@ -1,15 +1,53 @@
-<p align="center"><img src="site/crest.svg" width="180" alt="Герб «Чисто»"></p>
+<p align="center">
+  <img alt="Чисто — убирает рекламу и слежку на телефоне и компьютере" src=".github/assets/banner.png" width="100%">
+</p>
 
-# Чисто — личный блокировщик рекламы
+<p align="center">
+  <a href="https://chisto.flownote.cc"><img alt="Сайт" src="https://img.shields.io/badge/%D1%81%D0%B0%D0%B9%D1%82-chisto.flownote.cc-873730?style=for-the-badge"></a>
+  <a href="https://t.me/chisto_ads_bot"><img alt="Бот в Telegram" src="https://img.shields.io/badge/Telegram-%40chisto__ads__bot-873730?style=for-the-badge&logo=telegram&logoColor=white"></a>
+  <a href="https://github.com/kozliq/chisto/releases"><img alt="Версия" src="https://img.shields.io/badge/%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F-0.1.0-1c1a1b?style=for-the-badge"></a>
+  <img alt="iPhone, Android, компьютер, роутер" src="https://img.shields.io/badge/iPhone%20%C2%B7%20Android%20%C2%B7%20%D0%BA%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80%20%C2%B7%20%D1%80%D0%BE%D1%83%D1%82%D0%B5%D1%80-1c1a1b?style=for-the-badge">
+  <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/%D0%BB%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F-MIT-1c1a1b?style=for-the-badge"></a>
+</p>
 
-*Убирает рекламу и слежку. Бесплатно, без регистрации, без аккаунта.*
+<h3 align="center">Открыл сайт, нажал одну кнопку — реклама пропала.</h3>
 
-**Поставить: [chisto.flownote.cc](https://chisto.flownote.cc)**
+<p align="center">
+  Сайты, игры на телефоне, баннеры и слежка. Без регистрации, без аккаунта, без программ, которые висят в фоне. Бесплатно навсегда.
+</p>
 
-Одна страница, одна кнопка на устройство. Человек открывает сайт, нажимает кнопку своей платформы,
-подтверждает системный диалог — рекламные домены режутся, обычные сайты открываются.
+<p align="center">
+  <a href="https://chisto.flownote.cc"><b>Поставить: chisto.flownote.cc</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://t.me/chisto_ads_bot"><b>Бот в Telegram</b></a>
+  &nbsp;·&nbsp;
+  <a href="#что-режется">Что режется</a>
+  &nbsp;·&nbsp;
+  <a href="#два-варианта-сервера">Свой сервер</a>
+  &nbsp;·&nbsp;
+  <a href="#поддержать">Поддержать</a>
+</p>
 
-Это **не** одна программа на все ОС (так честно не бывает). Это один бренд и одна ссылка:
+<br>
+
+<p align="center">
+  <img src=".github/assets/how.png" width="100%" alt="Три шага: открой сайт, нажми одну кнопку, подтверди">
+</p>
+
+<p align="center">
+  <img src=".github/assets/free.png" width="100%" alt="0 рублей, 0 рекламы и трекеров, 0 регистраций и аккаунтов">
+</p>
+
+## Установка
+
+Одна страница, одна кнопка на устройство. Сайт сам понимает, телефон у тебя или компьютер, и показывает нужную кнопку.
+Подтверждаешь системный диалог — рекламные домены режутся, обычные сайты открываются.
+
+<p align="center">
+  <img src=".github/assets/install.png" width="100%" alt="Страница установки chisto.flownote.cc на компьютере и на iPhone">
+</p>
+
+Это **не** одна программа на все системы (так честно не бывает). Это один бренд и одна ссылка:
 
 | Устройство | Что ставится | Как |
 |---|---|---|
@@ -24,7 +62,25 @@
 
 Стены «отключите блокировщик» снимаются сетью и CSS: детекторы (BlockAdBlock и клоны) не загружаются, плюс список Adblock Warning Removal (на момент сборки), RU AdList и русский фильтр AdGuard.
 
-Что убирается, а что нет — честно в [docs/LIMITS.md](docs/LIMITS.md). Коротко: сайты в браузере — основной эффект;
+## Что режется
+
+| Где | Что будет |
+|---|---|
+| Сайты в браузере | Баннеры, всплывашки, стены «отключите блокировщик» — основной эффект |
+| Игры на телефоне | Unity Ads, AppLovin, ironSource, Vungle, Mintegral, AdMob — реклама в большинстве игр не грузится. Минус: «посмотри рекламу за бонус» тоже перестаёт работать |
+| SoundCloud | Рекламный сервер `promoted.soundcloud.com` закрыт |
+| Spotify | **Нет.** Аудиореклама идёт с тех же серверов, что и музыка: закроешь их — сломается музыка. Режутся только пиксели слежки |
+| YouTube, TikTok, Instagram (официальные приложения) | **Нет** — та же причина |
+
+### Бот в Telegram
+
+Ничего ставить не нужно: открой **[@chisto_ads_bot](https://t.me/chisto_ads_bot)** и нажми «Запустить». Те же кнопки, что на сайте, расширение файлом и «поделиться» в любом чате.
+
+<p align="center">
+  <img src=".github/assets/bot.png" width="360" alt="Чат с ботом Чисто: после /start приходят кнопки iPhone, Android, Компьютер, Роутер">
+</p>
+
+Что убирается, а что нет — подробно и честно в [docs/LIMITS.md](docs/LIMITS.md). Коротко: сайты в браузере — основной эффект;
 приложения — режутся отдельные рекламные домены; официальные приложения YouTube/TikTok/Instagram — **не поддерживаются**.
 
 **Реклама внутри роликов YouTube** (интеграции блогеров: банки, маркетплейсы, «промокод в описании») — расширение
@@ -91,7 +147,8 @@ Telegram-бот (по желанию): создайте бота в @BotFather, 
     extension/                — исходники MV3, сборка под Chrome и Firefox
     scripts/                  — setup, генераторы, check-doh.mjs, audit-secrets.sh
     docs/                     — LIMITS, PRIVACY, ROUTER, ИСТОЧНИКИ (шрифты)
-    tools/crest.mjs           — герб (site/crest.svg), tools/icons.sh — иконки из знака site/favicon.svg
+    brand/kit/                — фирменный стиль: герб (мангуст против кобры), цвета, шрифт — BRAND.md
+    tools/readme-assets.sh    — картинки README из .github/assets/src/*.html (headless Chrome)
 
 ## Проверка
 
@@ -107,4 +164,16 @@ Telegram-бот (по желанию): создайте бота в @BotFather, 
 
 MIT — см. [LICENSE](LICENSE). Списки фильтров (EasyList, RU AdList, AdGuard, StevenBlack) скачиваются при сборке и распространяются по своим лицензиям.
 
-Сделал Прометей — бесплатно и от души. Сайты у нас тоже без рекламы: [глянуть](https://ksd.flownote.cc).
+## Автор
+
+Проект некоммерческий: бесплатный, с открытым кодом и без рекламы.
+
+<br>
+
+<p align="center">
+  <a href="https://chisto.flownote.cc"><b>chisto.flownote.cc</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://t.me/chisto_ads_bot"><b>Бот</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/kozliq/chisto"><b>⭐ Звезда</b></a>
+</p>
