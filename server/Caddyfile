@@ -1,0 +1,38 @@
+# Один хост: сайт с кнопками + DoH. Панель AdGuard Home сюда НЕ проброшена.
+{
+	email {$ACME_EMAIL}
+	acme_ca https://acme-v02.api.letsencrypt.org/directory
+}
+
+{$DOH_HOST} {
+	# Журнал запросов Caddy выключен (директивы log нет). Не добавляйте её без записи в docs/PRIVACY.md.
+
+	@doh path {$DOH_PATH}
+	handle @doh {
+		rewrite * /dns-query
+		reverse_proxy adguard:3000
+	}
+
+	# _headers нужен только варианту на Cloudflare
+	@cfmeta path /_headers
+	respond @cfmeta 404
+
+	handle {
+		root * /srv/site
+		@mobileconfig path *.mobileconfig
+		header @mobileconfig Content-Type application/x-apple-aspen-config
+		@apk path *.apk
+		header @apk Content-Type application/vnd.android.package-archive
+		@dl path /dl/*
+		header @dl Cache-Control "no-cache"
+		file_server
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'"
+		-Server
+	}
+}

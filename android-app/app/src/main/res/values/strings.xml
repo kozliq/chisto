@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Чисто</string>
+    <string name="motto">Война с рекламой вечна. Свет сильнее.</string>
+    <string name="on">Защита включена</string>
+    <string name="off">Защита выключена</string>
+    <string name="enable">Включить защиту</string>
+    <string name="disable">Выключить защиту</string>
+    <string name="mode_vpn">Режим: локальный VPN только для DNS. Остальной трафик идёт напрямую и не записывается.</string>
+    <string name="private_dns_title">Частный DNS — без VPN</string>
+    <string name="private_dns_body">Android 9+. Не занимает слот VPN, работает и после удаления приложения.</string>
+    <string name="private_dns_set">Включить Частный DNS</string>
+    <string name="private_dns_copy">Скопировать адрес и открыть настройки</string>
+    <string name="private_dns_copied">Адрес скопирован. Настройки → Сеть → Частный DNS → «Имя хоста» → вставить.</string>
+    <string name="private_dns_done">Частный DNS включён на сервер</string>
+    <string name="youtube">YouTube, TikTok и Instagram этим приложением не чинятся: их реклама идёт с тех же серверов, что и видео.</string>
+    <string name="server">Сервер: %1$s</string>
+    <string name="vpn_notice">Android спросит разрешение на VPN. Это локальный фильтр DNS на телефоне — трафик никуда не уводится.</string>
+</resources>

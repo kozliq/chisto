@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тестовая страница с рекламой</title>
+<style>
+  body { margin: 0; background: #141016; color: #f0ebee; font: 16px/1.5 system-ui, sans-serif; }
+  .fixture-page { padding: 32px 16px; max-width: 640px; margin: 0 auto; overflow: hidden; height: 100vh; filter: blur(3px); }
+  .ad-slot { margin: 18px 0; padding: 14px; background: #ffdd57; color: #222; font-weight: 700; }
+  .fixture-adblock-wall { position: fixed; inset: 0; background: rgba(0,0,0,.92); display: grid; place-items: center; font-size: 22px; }
+  #result { font-size: 18px; font-weight: 700; margin: 24px 0; white-space: pre-line; }
+</style>
+<script src="ads/blockadblock.js"></script>
+<script src="check.js" defer></script>
+</head>
+<body>
+<div class="fixture-page">
+  <h1>Тест блокировщика</h1>
+  <p id="content">Обычный текст статьи. Он должен остаться виден.</p>
+  <ins class="adsbygoogle ad-slot" data-t="adsbygoogle">РЕКЛАМА: .adsbygoogle (общее правило)</ins>
+  <div class="ad-banner ad-slot" data-t="ad-banner">РЕКЛАМА: .ad-banner (общее правило)</div>
+  <div class="fixture-promo ad-slot" data-t="fixture-promo">РЕКЛАМА: .fixture-promo (правило для localhost)</div>
+  <div class="adblock-notice ad-slot" data-t="adblock-notice">Отключите блокировщик рекламы! (общее правило на оверлеи)</div>
+  <img id="netBanner" src="ads/banner-1.svg" alt="" width="300" height="60" data-t="сетевой баннер">
+  <img id="netPixel" src="ads/track.gif" alt="" width="1" height="1">
+  <p id="result">Проверяю…</p>
+</div>
+<div class="fixture-adblock-wall" data-t="adblock-wall">Мы видим, что у вас блокировщик рекламы</div>
+</body>
+</html>

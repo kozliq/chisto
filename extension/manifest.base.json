@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Чисто — блокировщик рекламы",
+  "short_name": "Чисто",
+  "version": "0.1.0",
+  "description": "Скрывает рекламу и трекеры на сайтах: сетевые правила declarativeNetRequest и CSS. Ничего не отправляет на сервер.",
+  "permissions": ["declarativeNetRequest", "storage", "scripting", "webNavigation", "alarms"],
+  "host_permissions": ["<all_urls>"],
+  "action": { "default_popup": "popup/popup.html", "default_title": "Чисто" },
+  "icons": { "16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png" },
+  "web_accessible_resources": [
+    { "resources": ["redirects/*"], "matches": ["<all_urls>"] }
+  ]
+}

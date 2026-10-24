@@ -1,0 +1,21 @@
+// Бесплатный вариант без VPS: Cloudflare Worker = DoH-фильтр + сайт с кнопками.
+// Подготовка: ../scripts/setup-cloudflare.sh   Деплой: npx wrangler deploy (из этой папки)
+{
+  "name": "chisto-dns",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-09-01",
+  "assets": { "directory": "../site", "binding": "ASSETS" },
+  // Свой поддомен в Cloudflare владельца. Перед первым деплоем проверьте, что адрес свободен:
+  // wrangler с custom_domain ЗАБИРАЕТ адрес у другого воркера, если он уже занят.
+  "routes": [{ "pattern": "chisto.flownote.cc", "custom_domain": true }],
+  // Защита от злоупотреблений: не больше 600 DNS-запросов в минуту с одного адреса.
+  // Счётчик держит Cloudflare в памяти, мы адреса нигде не сохраняем.
+  "ratelimits": [{ "name": "DOH_LIMIT", "namespace_id": "1001", "simple": { "limit": 600, "period": 60 } }],
+  // Журналы и трассировка Worker выключены: домены пользователей нигде не сохраняются.
+  "observability": { "enabled": false },
+  "vars": {
+    "DOH_PATH": "/dns-query",
+    "UPSTREAM": "https://cloudflare-dns.com/dns-query",
+    "UPSTREAM_FALLBACK": "https://dns.google/dns-query"
+  }
+}

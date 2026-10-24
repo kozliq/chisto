@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Знак «Чисто»: щит с огнём (тот же, что site/favicon.svg) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="64" android:viewportHeight="64">
+    <path android:fillColor="#0A1024" android:pathData="M0,0h64v64h-64z" />
+    <path android:fillColor="#E2B64F" android:pathData="M12,9H52V30Q52,47 32,55Q12,47 12,30Z" />
+    <path android:fillColor="#163A8F" android:pathData="M15.5,12.5H48.5V30Q48.5,44.5 32,51Q15.5,44.5 15.5,30Z" />
+    <path android:fillColor="#E2B64F" android:pathData="M32,16C37,22 39.5,27 36.5,31.5C39.5,30.7 41,27.7 41.4,25C44.5,30.8 41.4,37.7 32,38.5C22.6,37.7 19.5,30.8 22.6,25C23,27.7 24.5,30.7 27.5,31.5C24.5,27 27,22 32,16Z" />
+    <path android:fillColor="#FFF1C4" android:pathData="M32,25.5C34.3,28.6 35.1,32 33.2,35.5C31.3,35.5 29.3,34 29.7,31.3C30.1,29.3 30.9,27.4 32,25.5Z" />
+    <path android:fillColor="#E2B64F" android:pathData="M30.5,37.5h3v8.5h-3z" />
+</vector>

@@ -1,0 +1,42 @@
+# Запуск: cd server && docker compose up -d
+# Перед первым запуском: ../scripts/setup.sh (создаст пароль, конфиг, профиль iOS).
+name: chisto
+
+services:
+  caddy:
+    image: caddy:2.8.4
+    restart: unless-stopped
+    ports:
+      - "80:80"          # только для выпуска сертификата Let's Encrypt и редиректа
+      - "443:443/tcp"    # сайт с кнопками + DoH
+      - "443:443/udp"    # HTTP/3
+    env_file: ../.env
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../site:/srv/site:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+  adguard:
+    image: adguard/adguardhome:v0.107.57
+    restart: unless-stopped
+    depends_on: [caddy]
+    env_file: ../.env
+    entrypoint: ["/bin/sh", "/wait-cert.sh"]
+    ports:
+      - "853:853/tcp"              # DNS-over-TLS (Android «Частный DNS», роутеры)
+      - "127.0.0.1:3000:3000/tcp"  # панель: ТОЛЬКО с самого сервера, снаружи через SSH-туннель
+      - "127.0.0.1:5353:53/udp"    # обычный DNS: только для проверок с сервера
+      - "127.0.0.1:5353:53/tcp"
+      # Публичный 53 не открываем: открытый резолвер используют для DDoS-усиления.
+      # Нужен роутеру без DoH/DoT — смотрите docs/ROUTER.md, раздел «старый роутер».
+    volumes:
+      - ./wait-cert.sh:/wait-cert.sh:ro
+      - ./data/conf:/opt/adguardhome/conf
+      - ./data/work:/opt/adguardhome/work
+      - ../filters/build:/opt/adguardhome/userfilters:ro
+      - caddy-data:/caddy-data:ro
+
+volumes:
+  caddy-data:
+  caddy-config:

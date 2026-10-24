@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingStart="22dp" android:paddingEnd="22dp"
+        android:paddingTop="48dp" android:paddingBottom="40dp">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/app_name" android:textSize="48sp" android:textStyle="bold" android:fontFamily="serif" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/motto" android:textSize="17sp" android:textStyle="bold"
+            android:fontFamily="serif" android:textColor="@color/gold" android:layout_marginTop="4dp" />
+
+        <TextView android:id="@+id/status" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:textSize="20sp" android:textStyle="bold" />
+
+        <TextView android:id="@+id/server" style="@style/Body"
+            android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" />
+
+        <TextView android:id="@+id/toggle" style="@style/Link"
+            android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" />
+
+        <TextView android:id="@+id/mode" style="@style/Body" android:text="@string/vpn_notice"
+            android:layout_width="match_parent" android:layout_height="wrap_content" />
+
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:layout_marginTop="28dp" android:layout_marginBottom="20dp" android:background="@color/line" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/private_dns_title" android:textSize="19sp" android:textStyle="bold" />
+        <TextView style="@style/Body" android:text="@string/private_dns_body" android:layout_marginTop="4dp"
+            android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <TextView android:id="@+id/privateDns" style="@style/Link"
+            android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" />
+        <TextView android:id="@+id/privateDnsNote" style="@style/Body"
+            android:layout_width="match_parent" android:layout_height="wrap_content" />
+
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:layout_marginTop="28dp" android:layout_marginBottom="20dp" android:background="@color/line" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/youtube" android:textSize="17sp" android:textColor="@color/warn" />
+    </LinearLayout>
+</ScrollView>

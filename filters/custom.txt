@@ -1,0 +1,107 @@
+! Title: Чисто — свои правила
+! Формат: EasyList / uBlock Origin / AdGuard (общее подмножество).
+! Этот файл читают: расширение (всё), Safari Content Blocker (всё, что влезает),
+! DNS-сервер (только строки вида ||домен^ — см. filters/README.md).
+! Каждое правило — с комментарием «зачем». Сломало сайт — сузьте правило, а не добавляйте новых.
+
+! ───────────── 1. Сеть: целые рекламные домены (уйдут и в DNS) ─────────────
+! Рекламная сеть Google: отдельный хост, контент сайтов с него не грузится.
+||pagead2.googlesyndication.com^
+||googleads.g.doubleclick.net^
+||ad.doubleclick.net^
+! Рекламные сети, которые часто встречаются в рунете.
+||an.yandex.ru^
+||yabs.yandex.ru^
+||ads.adfox.ru^
+||ad.mail.ru^
+! Трекеры, которые не нужны для работы сайтов.
+||mc.yandex.ru^
+||top-fwz1.mail.ru^
+||counter.yadro.ru^
+! Тестовый домен для проверки из docs/CHECKLIST.md (в реальной жизни не существует).
+||chisto-test-ad.invalid^
+
+! ───────────── 2. Сеть: только в браузере (в DNS не пойдут) ─────────────
+! Блок по пути: сам хост нужен сайтам, режем только рекламный скрипт.
+||yastatic.net/partner-code/$script
+||vk.com/js/api/adman_init.js
+! Только сторонние запросы: на самом сайте ресурс не трогаем.
+||adriver.ru^$third-party
+||criteo.com^$third-party
+! Тип ресурса: картинки-счётчики 1×1.
+||hits.example-counter.net^$image
+! Ограничение по сайту: правило действует только на страницах example.org.
+||cdn.example.net/promo/$domain=example.org
+! Ограничение «кроме»: везде, кроме example.org.
+||widgets.example.net/banner^$domain=~example.org
+! Подмена на пустышку: сайт ждёт скрипт рекламы и ломается без него —
+! отдаём пустой скрипт из расширения (как в uBlock), сайт работает, реклама нет.
+||pagead2.googlesyndication.com/pagead/js/adsbygoogle.js$script,redirect=noop.js
+||imasdk.googleapis.com/js/sdkloader/ima3.js$script,redirect=noop.js
+! Тестовые правила для site/fixtures/ad.html (сетевой баннер с того же хоста).
+/fixtures/ads/banner-*.svg$image
+||localhost/fixtures/ads/track.gif$image
+
+! ───────────── 3. Исключения (allowlist) ─────────────
+! Сайт проверяет «приманку» ads.js: если её нет — показывает «отключите адблок».
+! Разрешаем приманку на этом сайте; рекламы в ней нет.
+@@||example.org/ads.js$script,domain=example.org
+! Широкое правило задело нормальный ресурс — точечное исключение вместо отключения правила.
+@@||cdn.example.net/promo/logo.svg$image
+! Сайт полностью в белом списке (ничего не режем на нём).
+@@||bank.example^$document
+! Не прятать элементы на сайте (сетевые правила продолжают работать).
+@@||docs.example.com^$elemhide
+! Не применять общие косметические правила (только точечные для сайта).
+@@||shop.example.com^$generichide
+
+! ───────────── 3а. Стены «отключите блокировщик» ─────────────
+! Известные скрипты-детекторы адблока (по имени файла). Без них стена не появляется.
+/blockadblock.js$script
+/fuckadblock.js$script
+/adblock-detector.$script
+/adblockdetector.$script
+/detectadblock.$script
+/adblock-checker.$script
+! Окно Google «Вы используете блокировщик рекламы» (Funding Choices). Только в браузере.
+||fundingchoicesmessages.google.com^$script,third-party
+##.fc-ab-root
+! Если правило всё же сломало сайт — исключение точечно:
+! @@||site.ru/js/adblock-detector.js$script
+
+! ───────────── 4. Косметика: общие правила (везде) ─────────────
+! Типичные рекламные контейнеры.
+##.adsbygoogle
+##ins.adsbygoogle
+##div[id^="yandex_rtb_"]
+##div[id^="adfox_"]
+##.ad-banner
+##.banner-ad
+##[data-ad-slot]
+! Пустые плейсхолдеры, которые остаются после блокировки сети.
+##.ad-placeholder
+##.ads-container:empty
+! Оверлеи «отключите адблок» с типичными именами классов.
+##.adblock-notice
+##.adblocker-overlay
+##.adb-overlay
+
+! ───────────── 5. Косметика: правила для конкретных сайтов ─────────────
+! Прячем блок «реклама» в ленте только на этом сайте.
+example.org##.feed-item--sponsored
+example.org,example.net##.sidebar-promo
+! Шаблон для сайта с заглушкой «отключите адблок»: прячем оверлей и возвращаем прокрутку.
+example.org##.anti-adblock-modal
+example.org#$#body { overflow: auto !important; }
+example.org#$#html { overflow: auto !important; }
+! То же в синтаксисе uBlock (:style) — расширение понимает оба.
+example.net##.page-wrapper:style(filter: none !important)
+! Исключение: общее правило ##.ad-banner прячет на этом сайте нужный блок.
+news.example#@#.ad-banner
+! Тестовые правила для site/fixtures/ad.html.
+localhost##.fixture-promo
+localhost##.fixture-adblock-wall
+localhost#$#.fixture-page { overflow: auto !important; filter: none !important; }
+127.0.0.1##.fixture-promo
+127.0.0.1##.fixture-adblock-wall
+127.0.0.1#$#.fixture-page { overflow: auto !important; filter: none !important; }

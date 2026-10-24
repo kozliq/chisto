@@ -1,0 +1,13 @@
+# Заголовки для варианта на Cloudflare Worker (Caddy этот файл не отдаёт и не читает).
+/dl/chisto.mobileconfig
+  Content-Type: application/x-apple-aspen-config
+  Cache-Control: no-cache
+/dl/chisto.apk
+  Content-Type: application/vnd.android.package-archive
+/rules/update.json
+  Cache-Control: max-age=600
+  Access-Control-Allow-Origin: *
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'

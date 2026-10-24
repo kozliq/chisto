@@ -1,0 +1,115 @@
+# ШАБЛОН. Рабочий файл — server/data/conf/AdGuardHome.yaml, его делает scripts/setup.sh.
+# Плейсхолдеры __ВОТ_ТАК__ заменяются из .env. Пароль сюда не пишется — только bcrypt-хеш.
+http:
+  address: 0.0.0.0:3000          # внутри контейнера; наружу проброшен только на 127.0.0.1
+  session_ttl: 720h
+  pprof:
+    enabled: false
+    port: 6060
+users:
+  - name: __ADMIN_USER__
+    password: __ADMIN_HASH__
+auth_attempts: 5
+block_auth_min: 15
+language: ru
+theme: auto
+dns:
+  bind_hosts:
+    - 0.0.0.0
+  port: 53
+  anonymize_client_ip: true
+  ratelimit: 30
+  refuse_any: true
+  upstream_dns:
+    - https://dns.quad9.net/dns-query
+    - https://cloudflare-dns.com/dns-query
+  bootstrap_dns:
+    - 9.9.9.9
+    - 1.1.1.1
+  fallback_dns: []
+  upstream_mode: load_balance
+  cache_size: 4194304
+  cache_optimistic: true
+  enable_dnssec: true
+  edns_client_subnet:
+    enabled: false
+  # Caddy в docker-сети передаёт DoH; адреса докера считаем доверенным прокси.
+  trusted_proxies:
+    - 127.0.0.0/8
+    - ::1/128
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+    - 10.0.0.0/8
+  aaaa_disabled: false
+  use_private_ptr_resolvers: false
+  serve_http3: false
+  use_http3_upstreams: false
+tls:
+  enabled: true
+  server_name: __DOH_HOST__
+  force_https: false
+  port_https: 0                  # HTTPS/DoH обслуживает Caddy на 443
+  port_dns_over_tls: 853
+  port_dns_over_quic: 0
+  allow_unencrypted_doh: true    # DoH приходит от Caddy внутри docker-сети по HTTP
+  certificate_path: /caddy-data/caddy/certificates/__CERT_ISSUER_DIR__/__DOH_HOST__/__DOH_HOST__.crt
+  private_key_path: /caddy-data/caddy/certificates/__CERT_ISSUER_DIR__/__DOH_HOST__/__DOH_HOST__.key
+querylog:
+  # Журнал запросов ВЫКЛЮЧЕН. Если включаете — обновите docs/PRIVACY.md (срок и кто видит).
+  enabled: false
+  file_enabled: false
+  interval: 24h
+  size_memory: 0
+  ignored: []
+statistics:
+  # Счётчики тоже выключены: в них есть «топ клиентов».
+  enabled: false
+  interval: 24h
+  ignored: []
+filters:
+  - enabled: true
+    url: https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt
+    name: AdGuard DNS filter (EasyList + EasyPrivacy, адаптированные для DNS)
+    id: 1
+  - enabled: true
+    url: https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+    name: StevenBlack hosts
+    id: 2
+  - enabled: true
+    url: /opt/adguardhome/userfilters/dns.txt
+    name: custom.txt (только чистые правила доменов, собирается tools/build.mjs)
+    id: 3
+  # EasyList и EasyPrivacy целиком в DNS не кладём: в них правила с путями и типами файлов,
+  # DNS их не понимает, а доменные правила оттуда уже входят в AdGuard DNS filter.
+  # Полные списки работают в расширении. Включить в DNS можно, но риск поломок выше.
+  - enabled: false
+    url: https://easylist.to/easylist/easylist.txt
+    name: EasyList (полный, выключен — см. filters/README.md)
+    id: 4
+  - enabled: false
+    url: https://easylist.to/easylist/easyprivacy.txt
+    name: EasyPrivacy (полный, выключен — см. filters/README.md)
+    id: 5
+whitelist_filters: []
+user_rules: []
+filtering:
+  filtering_enabled: true
+  filters_update_interval: 24    # часы: списки обновляются сами раз в сутки
+  blocking_mode: default
+  blocked_response_ttl: 10
+  protection_enabled: true
+  parental_enabled: false
+  safebrowsing_enabled: false
+  safe_search:
+    enabled: false
+  safe_fs_patterns:
+    - /opt/adguardhome/userfilters/*
+log:
+  enabled: true
+  file: ""
+  verbose: false                 # verbose пишет домены в лог — не включать на постоянку
+os:
+  group: ""
+  user: ""
+  rlimit_nofile: 0
+schema_version: 29

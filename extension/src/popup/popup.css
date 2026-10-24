@@ -1,0 +1,13 @@
+:root { color-scheme: dark; }
+body { margin: 0; padding: 16px 18px 14px; width: 280px; background: #0a1024; color: #eef2fb;
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+p { margin: 0 0 10px; }
+.brand { font: 700 24px/1.1 Literata, Georgia, "Times New Roman", serif; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.brand img { width: 26px; height: 26px; }
+.state { color: #8fe3a8; font-weight: 600; }
+.state.off { color: #f2b36b; }
+.site { color: #b5bfd8; word-break: break-all; padding-bottom: 10px; border-bottom: 1px solid #24325c; }
+a { color: #eef2fb; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #3f6ef0; text-decoration-thickness: 2px; }
+a:hover { text-decoration-color: #eef2fb; }
+.note { color: #b5bfd8; font-size: 12px; margin-top: 12px; }
+.motto { color: #e2b64f; font-size: 12px; margin-top: 10px; }

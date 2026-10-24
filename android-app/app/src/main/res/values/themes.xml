@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#0A1024</color>
+    <color name="text">#EEF2FB</color>
+    <color name="muted">#B5BFD8</color>
+    <color name="ok">#8FE3A8</color>
+    <color name="warn">#F2B36B</color>
+    <color name="line">#24325C</color>
+    <color name="gold">#E2B64F</color>
+    <color name="blue">#3F6EF0</color>
+    <style name="Theme.Chisto" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+        <item name="android:textColorPrimary">@color/text</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:colorAccent">@color/ok</item>
+    </style>
+    <style name="Link">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+    <style name="Body">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/muted</item>
+        <item name="android:lineSpacingMultiplier">1.2</item>
+    </style>
+</resources>

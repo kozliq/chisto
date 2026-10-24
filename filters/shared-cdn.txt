@@ -1,0 +1,35 @@
+# Домены, которые отдают и сайт, и рекламу. В DNS их НЕ режем:
+# tools/build.mjs не пропустит в DNS правило ||домен^ на такой хост
+# (в расширении правило останется — там можно резать по пути и типу файла).
+#
+#   example.com     — защищён только сам example.com (поддомен ads.example.com резать можно)
+#   *.example.com   — защищены example.com и ВСЕ поддомены
+#
+# Одна запись на строку.
+googleapis.com
+*.gstatic.com
+*.googleusercontent.com
+*.googlevideo.com
+*.ytimg.com
+youtube.com
+www.youtube.com
+cloudfront.net
+akamaihd.net
+akamaized.net
+fastly.net
+cloudflare.com
+cdnjs.cloudflare.com
+*.jsdelivr.net
+unpkg.com
+yastatic.net
+yandex.net
+yandex.ru
+*.userapi.com
+vk.com
+*.vkuser.net
+*.mycdn.me
+mail.ru
+*.imgsmail.ru
+*.fbcdn.net
+*.cdninstagram.com
+*.twimg.com

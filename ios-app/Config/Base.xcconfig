@@ -1,0 +1,5 @@
+// Сгенерировано scripts/gen-ios-config.sh из .env (PROFILE_ID). Свой bundle id — не чужой.
+BUNDLE_ID = cc.flownote.chisto
+// Team ID владельца аккаунта Apple Developer кладите в Config/Team.xcconfig (он в .gitignore):
+//   DEVELOPMENT_TEAM = ABCDE12345
+#include? "Team.xcconfig"
