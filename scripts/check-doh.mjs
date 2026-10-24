@@ -72,5 +72,5 @@ for (const [name, wantOurs, wantPublic] of CASES) {
   if (!ok) fail++;
   console.log(`${ok ? '✓' : '✗'} ${name.padEnd(32)} DoH: ${a.padEnd(9)} DoT: ${(NO_DOT ? '—' : b).padEnd(9)} публичный: ${c}`);
 }
-console.log(fail ? `\nНе сошлось: ${fail}. Смотрите docs/CHECKLIST.md` : '\nВсё сходится.');
+console.log(fail ? `\nНе сошлось: ${fail}.` : '\nВсё сходится.');
 process.exit(fail ? 1 : 0);

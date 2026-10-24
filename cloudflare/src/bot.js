@@ -16,6 +16,13 @@ const HINTS = {
   router: 'Один раз на роутере — и в домашней сети ставить ничего не надо.',
 };
 
+// Звёзды Telegram: только по команде /donate, бот сам никогда не просит.
+const STARS = [10, 50, 100, 500];
+const DONATE_TEXT = 'Чисто бесплатное и таким останется: без рекламы, подписок и платных функций.\n\n' +
+  'Если пригодилось и хочется сказать спасибо — кинь звёздочку. Это добровольно и ни на что не влияет.';
+const PAYSUPPORT_TEXT = 'Звёзды здесь — просто спасибо, за них ничего не покупается. ' +
+  'Отправил по ошибке или передумал — напиши автору: https://t.me/goatlerr, вернём.';
+
 export function intro(site) {
   return {
     text: 'Чисто убирает рекламу и трекеры. Бесплатно, без регистрации.\n\n' +
@@ -44,6 +51,10 @@ export function handleUpdate(update, site) {
         chat_id: msg.chat.id, text: `${device.label}: ${HINTS[device.id]}`,
         reply_markup: { inline_keyboard: [[{ text: 'Открыть инструкцию', url: site + device.hash }]] },
       } });
+    } else if (cmd === 'donate') {
+      out.push({ method: 'donate', body: { chat_id: msg.chat.id } });
+    } else if (cmd === 'paysupport') {
+      out.push({ method: 'sendMessage', body: { chat_id: msg.chat.id, text: PAYSUPPORT_TEXT } });
     } else if (cmd === 'ext') {
       out.push(...extensionFiles(msg.chat.id, site));
     } else {
@@ -54,6 +65,15 @@ export function handleUpdate(update, site) {
   if (cb) {
     out.push({ method: 'answerCallbackQuery', body: { callback_query_id: cb.id } });
     if (cb.data === 'ext' && cb.message?.chat) out.push(...extensionFiles(cb.message.chat.id, site));
+  }
+  const pc = update.pre_checkout_query;
+  if (pc) {
+    const ok = pc.currency === 'XTR' && String(pc.invoice_payload || '').startsWith('thanks:');
+    out.push({ method: 'answerPreCheckoutQuery', body: { pre_checkout_query_id: pc.id, ok,
+      ...(ok ? {} : { error_message: 'Этот платёж не от Чисто.' }) } });
+  }
+  if (msg?.successful_payment) {
+    out.push({ method: 'sendMessage', body: { chat_id: msg.chat.id, text: 'Спасибо! ❤️ Звёздочка долетела, автору приятно.' } });
   }
   const iq = update.inline_query;
   if (iq) {
@@ -88,9 +108,28 @@ export async function botRequest(request, env, site) {
   const update = await request.json().catch(() => null);
   if (!update) return new Response('bad', { status: 400 });
   for (const call of handleUpdate(update, site)) {
+    if (call.method === 'donate') { await sendDonate(call.body.chat_id, env.TG_TOKEN); continue; }
     await fetch(`https://api.telegram.org/bot${env.TG_TOKEN}/${call.method}`, {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(call.body),
     }).catch(() => {});
   }
   return new Response('ok');
+}
+
+async function tgCall(token, method, body) {
+  const r = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+  }).then(r => r.json()).catch(() => null);
+  return r?.ok ? r.result : null;
+}
+
+/** Кнопки «⭐ 10 / 50 / 100 / 500»: каждая открывает оплату звёздами. */
+async function sendDonate(chatId, token) {
+  const links = await Promise.all(STARS.map(n => tgCall(token, 'createInvoiceLink', {
+    title: 'Спасибо Чисто', payload: `thanks:${n}`, currency: 'XTR', prices: [{ label: 'Спасибо', amount: n }],
+    description: 'Добровольное спасибо, ничего не покупается. Передумал — /paysupport.',
+  })));
+  if (links.some(l => !l)) return;
+  await tgCall(token, 'sendMessage', { chat_id: chatId, text: DONATE_TEXT, reply_markup: {
+    inline_keyboard: [STARS.map((n, i) => ({ text: `⭐ ${n}`, url: links[i] }))] } });
 }

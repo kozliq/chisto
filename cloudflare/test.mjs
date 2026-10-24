@@ -66,6 +66,20 @@ test('бот: @бот в любом чате — карточка со ссыл�
   assert.match(call.body.results[0].input_message_content.message_text, /https:\/\/chisto\.example\//);
 });
 
+test('бот: /donate — только по команде, /start о деньгах молчит', () => {
+  const [d] = handleUpdate({ message: { chat: { id: 7 }, text: '/donate' } }, 'https://chisto.example/');
+  assert.equal(d.method, 'donate');
+  const [start] = handleUpdate({ message: { chat: { id: 7 }, text: '/start' } }, 'https://chisto.example/');
+  assert.doesNotMatch(JSON.stringify(start), /donate|⭐|спасибо/i);
+});
+
+test('бот: платёж звёздами принимается, чужой — нет', () => {
+  const ok = handleUpdate({ pre_checkout_query: { id: 'p', currency: 'XTR', invoice_payload: 'thanks:50' } }, 'https://x/');
+  assert.equal(ok[0].body.ok, true);
+  const bad = handleUpdate({ pre_checkout_query: { id: 'p', currency: 'USD', invoice_payload: 'x' } }, 'https://x/');
+  assert.equal(bad[0].body.ok, false);
+});
+
 test('ANY-запрос получает REFUSED без ответов', () => {
   const q = query('example.com', 255);
   const a = refused(q, parseQuestion(q));

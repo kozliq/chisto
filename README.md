@@ -4,7 +4,7 @@
 
 *Война с рекламой вечна. Свет сильнее.*
 
-**Поставить: [chisto.flownote.cc](https://chisto.flownote.cc)** · как устроено — [статья](docs/ARTICLE.md)
+**Поставить: [chisto.flownote.cc](https://chisto.flownote.cc)**
 
 Одна страница, одна кнопка на устройство. Человек открывает сайт, нажимает кнопку своей платформы,
 подтверждает системный диалог — рекламные домены режутся, обычные сайты открываются.
@@ -78,32 +78,24 @@ Telegram-бот (по желанию): создайте бота в @BotFather, 
     filters/custom.txt        — свои правила (≈50 примеров всех типов), README — как добавить и откатить
     filters/shared-cdn.txt    — общие CDN, которые нельзя резать в DNS
     tools/build.mjs           — одна сборка: DNS, расширение, Safari, обновления; tools/rules.mjs — конвертер
-    site/                     — страница установки (тёмная, без регистрации), fixtures/ad.html — тест расширения
+    site/                     — страница установки (без регистрации), fixtures/ad.html — тест расширения
     ios-profile/              — install.mobileconfig генерируется scripts/gen-mobileconfig.sh из .env
     ios-app/                  — Xcode-проект: DNS Settings + Safari Content Blocker
     android-app/              — Gradle-проект: одна кнопка, локальный VPN только для DNS
     extension/                — исходники MV3, сборка под Chrome и Firefox
     scripts/                  — setup, генераторы, check-doh.mjs, audit-secrets.sh
-    docs/                     — ARTICLE (статья), LIMITS, PRIVACY, CHECKLIST, ROUTER, ИСТОЧНИКИ (шрифты)
+    docs/                     — LIMITS, PRIVACY, ROUTER, ИСТОЧНИКИ (шрифты)
     tools/crest.mjs           — герб (site/crest.svg), tools/icons.sh — иконки из знака site/favicon.svg
 
 ## Проверка
 
-Пошагово — [docs/CHECKLIST.md](docs/CHECKLIST.md). Что уже проверено при сборке репозитория:
-- Живой Worker на chisto.flownote.cc: `ad.doubleclick.net`, `pagead2.googlesyndication.com`, тестовый домен — `0.0.0.0`; `example.com`, `cdnjs.cloudflare.com` — резолвятся; ANY-запросы — отказ. 9/9 тестов (разбор DNS и бот).
-- Расширение в Brave (headless, распакованное): тестовая страница «ТЕСТ ПРОЙДЕН» 9/9 — вместе со стеной детектора адблока; без расширения — «НЕ ПРОЙДЕН». Обновление с сервера ставит 28 999 динамических правил.
-- iOS-проект собирается под симулятор (`xcodebuild … CODE_SIGNING_ALLOWED=NO`), профиль проходит `plutil -lint`.
-- `scripts/audit-secrets.sh` — ключей, сертификатов, паролей нет.
-
-## Дыры (честно)
-
-- **iOS-приложение** без Mac не соберётся в IPA, а без аккаунта Apple ($99/год) не попадёт ни в TestFlight, ни в App Store. Публикация — на человеке с аккаунтом. Ревью не обходим.
-- **Android APK** здесь не собран: нужны JDK 17 и Android SDK (`android-app/README.md`). Пока APK нет, сайт эту кнопку не показывает.
-- **Сервер на VPS** не поднимался — нет VPS. Вариант на Cloudflare проверен локально (`wrangler dev`).
-- **Расширение** в Chrome Web Store — взнос $5; в Firefox AMO — бесплатно.
-- **AdGuard Home** закреплён на `v0.107.57` — перед запуском проверьте свежую версию и `schema_version`.
+`node scripts/check-doh.mjs` — сверяет ответы сервера с публичным DNS. Тесты Worker: `cd cloudflare && node --test test.mjs`. Ключей и паролей в репозитории нет: `scripts/audit-secrets.sh`.
 
 Если правило слишком широкое и режет нормальный сайт — сужайте его ([filters/README.md](filters/README.md)), не «усиливайте блокировку».
+
+## Поддержать
+
+Чисто бесплатное и таким останется. Если хочется сказать спасибо — [DONATE.md](DONATE.md).
 
 ## Лицензия
 
