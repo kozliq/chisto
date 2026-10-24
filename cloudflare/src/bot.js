@@ -25,15 +25,18 @@ const PAYSUPPORT_TEXT = 'Звёзды здесь — просто спасибо
 
 export function intro(site) {
   return {
-    text: 'Чисто убирает рекламу и трекеры. Бесплатно, без регистрации.\n\n' +
-      'Выберите устройство — откроется страница с одной кнопкой.\n' +
-      'Официальные YouTube, TikTok и Instagram не чинятся — честно.',
+    text: 'Чисто убирает рекламу и трекеры. Бесплатно, без регистрации и аккаунта.\n\n' +
+      'Выберите устройство — откроется страница с одной кнопкой.\n\n' +
+      'На компьютере расширение ещё и проматывает рекламные вставки блогеров на YouTube.\n' +
+      'Безопасно: через сервер идут только имена сайтов, ничего не храним, код открыт.\n' +
+      'Приложения YouTube, TikTok и Instagram не чинятся — честно.',
     reply_markup: {
       inline_keyboard: [
         DEVICES.slice(0, 2).map(d => ({ text: d.label, url: site + d.hash })),
         DEVICES.slice(2).map(d => ({ text: d.label, url: site + d.hash })),
         [{ text: 'Прислать расширение файлом', callback_data: 'ext' }],
         [{ text: 'Поделиться с другом', switch_inline_query: '' }],
+        [{ text: 'Почему это безопасно', url: 'https://github.com/kozliq/chisto/blob/main/SECURITY.md' }],
       ],
     },
   };

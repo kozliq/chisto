@@ -111,9 +111,10 @@ test('битые пакеты не роняют разбор', () => {
 test('бот: /start — кнопки устройств и «поделиться»', () => {
   const [call] = handleUpdate({ message: { chat: { id: 7 }, text: '/start' } }, 'https://chisto.example/');
   assert.equal(call.method, 'sendMessage');
-  const urls = call.body.reply_markup.inline_keyboard.flat().map((b) => b.url).filter(Boolean);
+  const urls = call.body.reply_markup.inline_keyboard.flat().map((b) => b.url).filter((u) => u?.startsWith('https://chisto.example/'));
   assert.deepEqual(urls, ['https://chisto.example/#ios', 'https://chisto.example/#android', 'https://chisto.example/#desktop', 'https://chisto.example/#router']);
   assert.ok(call.body.reply_markup.inline_keyboard.flat().some((b) => b.switch_inline_query === ''));
+  assert.ok(call.body.reply_markup.inline_keyboard.flat().some((b) => /SECURITY\.md$/.test(b.url || '')));
 });
 
 test('бот: кнопка «прислать расширение» — ответ на нажатие + два файла', () => {

@@ -19,7 +19,7 @@ cd ..
 api() { curl -sS -X POST "https://api.telegram.org/bot${TOKEN}/$1" -H 'content-type: application/json' -d "$2"; echo; }
 api setWebhook "{\"url\":\"https://${DOH_HOST}/tg\",\"secret_token\":\"${SECRET}\",\"allowed_updates\":[\"message\",\"callback_query\",\"inline_query\",\"pre_checkout_query\"],\"drop_pending_updates\":true}"
 api setMyCommands '{"commands":[{"command":"start","description":"Как поставить"},{"command":"ios","description":"iPhone и iPad"},{"command":"android","description":"Android"},{"command":"desktop","description":"Компьютер"},{"command":"router","description":"Роутер"},{"command":"ext","description":"Прислать расширение файлом"},{"command":"donate","description":"Сказать спасибо звёздочкой"},{"command":"paysupport","description":"Вопрос по звёздам и возврат"}]}'
-api setMyShortDescription '{"short_description":"Убирает рекламу и трекеры. Бесплатно, без регистрации."}'
-api setMyDescription "{\"description\":\"Чисто — блокировка рекламы и трекеров для iPhone, Android, компьютера и роутера. Нажмите «Старт» и выберите устройство. Сайт: https://${DOH_HOST}/\"}"
+api setMyShortDescription '{"short_description":"Убирает рекламу и трекеры, проматывает рекламу блогеров на YouTube. Бесплатно, без регистрации, код открыт."}'
+api setMyDescription "{\"description\":\"Чисто — блокировка рекламы и трекеров для iPhone, Android, компьютера и роутера. Бесплатно, без регистрации и аккаунта. Через сервер идут только имена сайтов, бот ничего не хранит, код открыт: github.com/kozliq/chisto. Нажмите «Старт» и выберите устройство.\"}"
 unset TOKEN SECRET
 echo "Бот подключён. В @BotFather включите inline-режим: /setinline → бот → подсказка «поделиться Чисто»."
