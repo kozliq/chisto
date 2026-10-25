@@ -106,6 +106,8 @@
   const doh = dohUrl || `https://${dnsHost}${dohPath}`;
   const list = (name, kind = 'lite') => `${rulesBase}${name}-${kind}.${name === 'shadowrocket' ? 'list' : name === 'singbox' ? 'json' : 'txt'}`;
   const CLIENTS = {
+    // Happ — самый частый клиент в РФ, поэтому первый и по умолчанию. Своя страница: renderHapp.
+    happ: { label: 'Happ', custom: () => renderHapp() },
     shadowrocket: {
       label: 'Shadowrocket',
       dns: doh,
@@ -127,14 +129,6 @@
           rules: [{ rule_set: 'chisto-ads', action: 'reject' }],
         },
       }, null, 2),
-    },
-    happ: {
-      label: 'Happ',
-      dns: doh,
-      dnsSteps: 'Настройки → DNS туннеля (раньше «Remote DNS») → тип DoH → вставьте адрес. Если поле просит только имя хоста — впишите ' + dnsHost + '.',
-      list: null,
-      listSteps: 'Отдельного списка доменов у Happ нет: DoH-адрес выше уже режет рекламу на нашей стороне. Дополнительно в профиле маршрутизации можно добавить в BlockSites значение geosite:ads.',
-      snippet: null,
     },
     v2ray: {
       label: 'V2Ray / Xray',
@@ -178,10 +172,82 @@
     return wrap;
   }
 
+  // Профиль маршрутизации Happ (формат happ.su/main/dev-docs/routing): DNS «Чисто» внутри туннеля
+  // + блокировка geosite:category-ads-all, российские сайты напрямую. Ставится ссылкой happ://routing/onadd/…
+  // IP — адрес Cloudflare, за которым стоит DNS-хост: любой их узел отвечает на это имя.
+  const happIp = '104.21.82.19';
+  const happProfile = {
+    Name: cfg.brand || 'Чисто',
+    GlobalProxy: 'true',
+    RemoteDNSType: 'DoH', RemoteDNSDomain: doh, RemoteDNSIP: happIp,
+    DomesticDNSType: 'DoH', DomesticDNSDomain: doh, DomesticDNSIP: happIp,
+    Geoipurl: 'https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat',
+    Geositeurl: 'https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat',
+    DnsHosts: { [dnsHost]: happIp },
+    DirectSites: ['geosite:category-ru'],
+    DirectIp: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '169.254.0.0/16', '224.0.0.0/4', '255.255.255.255', 'geoip:ru'],
+    ProxySites: [], ProxyIp: [],
+    BlockSites: ['geosite:category-ads-all'], BlockIp: [],
+    DomainStrategy: 'IPIfNonMatch',
+    FakeDNS: 'false',
+  };
+  const happLink = 'happ://routing/onadd/' + btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(happProfile))));
+
+  function renderHapp() {
+    const body = $('#vpnBody');
+    const p = (cls, html) => { const e = el('p', cls); e.innerHTML = html; return e; };
+    const ol = (...lis) => { const o = el('ol', 'steps'); for (const html of lis) { const li = el('li'); li.innerHTML = html; o.append(li); } return o; };
+
+    const add = el('div', 'vpn-item');
+    add.append(el('h3', '', '1. Добавьте «Чисто» в Happ'));
+    const a = el('a', 'action');
+    a.href = happLink;
+    a.append(el('span', 'mark', '+'), el('span', '', 'Добавить в Happ'));
+    a.querySelector('.mark').setAttribute('aria-hidden', 'true');
+    add.append(a, ol(
+      'Нажмите кнопку на&nbsp;том устройстве, где стоит Happ (iPhone или Mac). Браузер спросит «Открыть в&nbsp;Happ?»&nbsp;— «Открыть».',
+      'Happ спросит «В&nbsp;какую подписку добавить профиль?»&nbsp;— выберите свой VPN. Если VPN несколько, повторите для каждого.',
+      'Подождите полминуты: Happ скачает списки и&nbsp;включит профиль <b>' + (cfg.brand || 'Чисто') + '</b>.',
+    ));
+    add.append(p('hint', 'Кнопка не&nbsp;открыла Happ (бывает в&nbsp;Telegram и&nbsp;других встроенных браузерах)? Скопируйте ссылку, откройте Happ, нажмите «+» в&nbsp;правом верхнем углу → «Вставить из&nbsp;буфера обмена».'));
+    const box = el('div', 'copybox'); box.append(el('code', '', 'Ссылка-профиль для Happ'), copyBtn(happLink, 'Скопировать ссылку'));
+    add.append(box);
+
+    const re = el('div', 'vpn-item');
+    re.append(el('h3', '', '2. Переподключите VPN'));
+    re.append(p('', 'В&nbsp;Happ нажмите большую круглую кнопку, чтобы отключиться, и&nbsp;ещё раз&nbsp;— чтобы подключиться. Новые настройки Happ включает только после переподключения.'));
+
+    const chk = el('div', 'vpn-item');
+    chk.append(el('h3', '', '3. Проверьте'));
+    chk.append(p('', 'С&nbsp;включённым VPN откройте <a href="https://ad.doubleclick.net" rel="noopener">ad.doubleclick.net</a>&nbsp;— это рекламный адрес. Страница не&nbsp;открылась&nbsp;— всё работает. Открылась&nbsp;— смотрите ниже.'));
+    chk.append(p('hint', 'Что изменится: реклама и&nbsp;трекеры режутся внутри VPN, российские сайты (Госуслуги, банки, Rutube) идут напрямую, без VPN&nbsp;— как у&nbsp;большинства VPN-сервисов. Остальное&nbsp;— через VPN, как раньше.'));
+
+    const json = el('div', 'vpn-item');
+    json.append(el('h3', '', 'Если у серверов подписки написано «JSON»'));
+    json.append(p('', 'Под названием сервера в&nbsp;Happ мелко написан тип, например «VLESS | xhttp | TLS | JSON». Для таких подписок Happ не&nbsp;принимает чужие профили, поэтому вставьте адрес DNS вручную:'));
+    json.append(ol(
+      'На&nbsp;главном экране Happ нажмите «•••» рядом с&nbsp;названием подписки → «Настройки» → «Маршрутизация» → откройте профиль подписки.',
+      'Найдите раздел «Туннель DNS». Тип&nbsp;— DoH.',
+      'В&nbsp;поле адреса (DoH URL или «Домен DoH») вставьте адрес ниже, в&nbsp;поле IP&nbsp;— ' + happIp + '.',
+      'Сохраните и&nbsp;переподключите VPN (шаг&nbsp;2), затем проверьте (шаг&nbsp;3).',
+    ));
+    const dbox = el('div', 'copybox'); dbox.append(el('code', '', doh), copyBtn(doh, 'Скопировать'));
+    json.append(dbox);
+
+    const off = p('off', '<b>Реклама вернулась после обновления подписки?</b> Некоторые VPN при обновлении присылают свой профиль. В&nbsp;настройках подписки («•••» → «Настройки») включите «Игнорировать импорт маршрутизации» и&nbsp;ещё раз нажмите «Добавить в&nbsp;Happ».');
+    const off2 = p('off', '<b>Как выключить:</b> «•••» у&nbsp;подписки → «Настройки» → «Маршрутизация» → выберите прежний профиль (или выключите «Включить маршрутизацию») и&nbsp;переподключите VPN. Профиль <b>' + (cfg.brand || 'Чисто') + '</b> там же можно удалить.');
+    body.append(add, re, chk, json, off, off2);
+  }
+
   function renderVpn(id) {
     const c = CLIENTS[id];
     const body = $('#vpnBody');
     body.replaceChildren();
+    $$('#vpnPick button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.c === id)));
+    try { localStorage.setItem('chistoVpnClient', id); } catch { /* приватный режим — не страшно */ }
+    const genericOff = $('#p-vpn > p.off'); // общее «Как выключить» — у Happ своё
+    if (genericOff) genericOff.hidden = Boolean(c.custom);
+    if (c.custom) return c.custom();
     body.append(item('1. Адрес DNS', c.dns, c.dnsSteps, 'Скопировать'));
     let extra = null;
     if (c.full) {
@@ -198,8 +264,6 @@
       box.append(el('pre', '', c.snippet), copyBtn(c.snippet, 'Скопировать'));
       body.append(item('Готовый кусок настроек — вставить целиком', null, null, null, box));
     }
-    $$('#vpnPick button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.c === id)));
-    try { localStorage.setItem('chistoVpnClient', id); } catch { /* приватный режим — не страшно */ }
   }
 
   if ($('#vpnPick')) {
@@ -209,9 +273,9 @@
       b.addEventListener('click', () => renderVpn(id));
       $('#vpnPick').append(b);
     }
-    let last = 'shadowrocket';
+    let last = 'happ';
     try { last = localStorage.getItem('chistoVpnClient') || last; } catch { /* нет хранилища */ }
-    renderVpn(CLIENTS[last] ? last : 'shadowrocket');
+    renderVpn(CLIENTS[last] ? last : 'happ');
   }
 
   // ── Статус фильтра: два DoH-запроса ──
