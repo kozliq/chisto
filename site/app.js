@@ -175,26 +175,32 @@
     return wrap;
   }
 
-  // Профиль маршрутизации Happ (формат happ.su/main/dev-docs/routing): DNS «Чисто» внутри туннеля
-  // + блокировка geosite:category-ads-all, российские сайты напрямую. Ставится ссылкой happ://routing/onadd/…
+  // Профиль маршрутизации Happ (формат happ.su/main/dev-docs/routing): DNS «Чисто» внутри туннеля режет рекламу,
+  // российские сайты напрямую. Ставится ссылкой happ://routing/onadd/…
+  // На iPhone у туннеля лимит 50 МБ: полные geo-базы и geosite:category-ads-all его рвут, поэтому
+  // свои маленькие базы site/happ/*.dat (только Россия, ~0,4 МБ, tools/happ-geo.mjs) и без больших списков.
+  // Имя новое: у профиля «Чисто» Happ мог оставить старые тяжёлые базы (обновляет их не чаще раза в неделю).
   // IP — адрес Cloudflare, за которым стоит DNS-хост: любой их узел отвечает на это имя.
   const happIp = '104.21.82.19';
+  const siteOrigin = cfg.dohHost ? `https://${cfg.dohHost}` : location.origin;
   const happProfile = {
-    Name: cfg.brand || 'Чисто',
+    Name: `${cfg.brand || 'Чисто'} — Россия напрямую`,
     GlobalProxy: 'true',
     RemoteDNSType: 'DoH', RemoteDNSDomain: doh, RemoteDNSIP: happIp,
     DomesticDNSType: 'DoH', DomesticDNSDomain: doh, DomesticDNSIP: happIp,
-    Geoipurl: 'https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat',
-    Geositeurl: 'https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat',
+    Geoipurl: `${siteOrigin}/happ/geoip.dat`,
+    Geositeurl: `${siteOrigin}/happ/geosite.dat`,
     DnsHosts: { [dnsHost]: happIp },
     DirectSites: ['geosite:category-ru', ...ruDomains.map((d) => `domain:${d}`)],
     DirectIp: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '169.254.0.0/16', '224.0.0.0/4', '255.255.255.255', 'geoip:ru'],
     ProxySites: [], ProxyIp: [],
-    BlockSites: ['geosite:category-ads-all'], BlockIp: [],
+    BlockSites: [], BlockIp: [],
     DomainStrategy: 'IPIfNonMatch',
     FakeDNS: 'false',
   };
-  const happLink = 'happ://routing/onadd/' + btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(happProfile))));
+  // base64url без «=», как в официальном конструкторе routing.happ.su: «/» в ссылке ломает разбор.
+  const happLink = 'happ://routing/onadd/' + btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(happProfile))))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
   // Happ: одна кнопка и два шага — всё лишнее спрятано под «Не получилось?».
   function renderHapp() {
@@ -221,6 +227,7 @@
     const box = el('div', 'copybox'); box.append(el('code', '', 'Ссылка для Happ'), copyBtn(happLink, 'Скопировать ссылку'));
     more.append(box);
     more.append(p('', '<b>Под серверами написано «JSON»</b> (например, «VLESS | xhttp | TLS | JSON»). Такие подписки Happ менять не&nbsp;даёт. Подключайтесь к&nbsp;серверу без пометки JSON или поставьте на&nbsp;компьютер <a href="#desktop">расширение</a>.'));
+    more.append(p('', '<b>Ошибка «Лимит памяти туннеля превышен»</b>&nbsp;— это старая версия нашей настройки. В&nbsp;Happ: шестерёнка → «Маршрутизация» → профиль «Чисто» → внизу «Удалить конфигурацию». Потом нажмите «Добавить в&nbsp;Happ» ещё раз.'));
     more.append(p('', '<b>Rutube или VK бесконечно грузятся с&nbsp;VPN</b>&nbsp;— нажмите «Добавить в&nbsp;Happ» ещё раз (профиль обновится) и&nbsp;переподключите VPN. Если серверы с&nbsp;пометкой JSON&nbsp;— см. выше: к&nbsp;ним настройка не&nbsp;применяется.'));
     more.append(p('', '<b>Реклама вернулась</b> после обновления подписки&nbsp;— просто нажмите «Добавить в&nbsp;Happ» ещё раз.'));
     more.append(p('', '<b>Как выключить:</b> в&nbsp;Happ «•••» рядом с&nbsp;подпиской → «Маршрутизация» → выключите «Включить маршрутизацию», затем выключите и&nbsp;включите VPN.'));
