@@ -122,7 +122,7 @@ function extensionFiles(chatId, site) {
   ];
 }
 
-export async function botRequest(request, env, site) {
+export async function botRequest(request, env, site, onUpdate) {
   // Секрет из setWebhook: чужие POST на этот адрес отбрасываем.
   if (!env.TG_TOKEN || request.headers.get('x-telegram-bot-api-secret-token') !== env.TG_SECRET) {
     return new Response('forbidden', { status: 403 });
@@ -131,7 +131,9 @@ export async function botRequest(request, env, site) {
   try {
     const update = await request.json().catch(() => null);
     if (!update || typeof update !== 'object') return new Response('ok');
-    for (const call of handleUpdate(update, site, env.TG_BOT)) {
+    const calls = handleUpdate(update, site, env.TG_BOT);
+    if (onUpdate) onUpdate(update, calls);
+    for (const call of calls) {
       if (call.method === 'donate') { await sendDonate(call.body.chat_id, env.TG_TOKEN); continue; }
       await tgCall(env.TG_TOKEN, call.method, call.body);
     }

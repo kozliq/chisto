@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.png">
+<title>Чисто — статистика</title>
+<!-- Статистика для автора: /admin. Цифры отдаёт Worker (/api/admin) только с ключом.
+     Первый раз открыть ссылку …/admin#k=<ключ> — ключ запомнится в браузере.
+     Страница без ключа пустая. Здесь только общие счётчики: ни адресов, ни доменов. -->
+<style>
+  @font-face { font-family: Tinos; font-display: swap; font-weight: 700; src: url(fonts/tinos-cyrillic-700.woff2) format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+  @font-face { font-family: Tinos; font-display: swap; font-weight: 700; src: url(fonts/tinos-latin-700.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F; }
+  :root { --bg: #1c1a1b; --fg: #f0ebee; --dim: #b8afb6; --line: #3b3638; --ok: #8fe3a8; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+         font-variant-numeric: tabular-nums; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; padding-top: max(24px, env(safe-area-inset-top)); }
+  header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+  h1, h2 { font-family: Tinos, "Times New Roman", serif; }
+  h1 { margin: 0; font-size: 22px; font-weight: 700; }
+  h1 span { color: var(--dim); font-weight: 400; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 16px; }
+  .meta { margin: 0; color: var(--dim); font-size: 15px; white-space: nowrap; }
+  button.link { font: inherit; color: var(--fg); background: none; border: 0; padding: 0; cursor: pointer;
+                text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  .top { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 40px 0 28px; }
+  .top b { display: block; font-size: clamp(38px, 11vw, 68px); line-height: 1; font-weight: 700; letter-spacing: -0.03em; }
+  .top span { display: block; margin-top: 8px; font-size: 15px; color: var(--dim); line-height: 1.3; }
+  .now { margin: 0 0 8px; font-size: 15px; }
+  section { border-top: 1px solid var(--line); padding: 28px 0 8px; margin-top: 20px; }
+  h2 { margin: 0 0 4px; font-size: 24px; font-weight: 700; }
+  .lead { margin: 0 0 16px; font-size: 18px; }
+  dl { display: grid; grid-template-columns: 124px 1fr; gap: 6px 16px; margin: 0; font-size: 15px; }
+  dt { color: var(--dim); }
+  dd { margin: 0; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 15px; }
+  th { font-weight: 400; color: var(--dim); font-size: 13px; text-align: right; padding: 0 0 6px 12px; }
+  td { text-align: right; padding: 5px 0 5px 12px; }
+  th:first-child, td:first-child { text-align: left; padding-left: 0; }
+  td.zero { color: var(--dim); }
+  .sub th { padding-top: 0; }
+  .note { margin: 14px 0 0; font-size: 15px; color: var(--dim); }
+  footer { margin-top: 40px; color: var(--dim); font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+  footer button.link { color: var(--dim); }
+  .login { margin-top: 48px; max-width: 460px; }
+  .login p { color: var(--dim); font-size: 15px; }
+  .login input { width: 100%; font: inherit; color: var(--fg); background: none; border: 0;
+                 border-bottom: 1px solid var(--fg); padding: 8px 0; outline: none; border-radius: 0; }
+  .login .row { display: flex; gap: 16px; align-items: center; margin-top: 8px; }
+  @media (max-width: 420px) {
+    .top { gap: 10px; }
+    .top span { font-size: 13px; }
+    dl { grid-template-columns: 100px 1fr; }
+    th, td { padding-left: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Чисто <span>статистика</span></h1>
+    <p class="meta"><span id="at"></span><button class="link" id="reload" hidden>обновить</button></p>
+  </header>
+  <main id="main"></main>
+  <div class="login" id="login" hidden>
+    <h2>Нужен ключ</h2>
+    <p id="login-why">Открой ссылку с ключом — или вставь её сюда. Браузер запомнит, дальше будет открываться сразу.</p>
+    <input id="key" type="password" autocomplete="off" placeholder="ссылка или ключ">
+    <div class="row"><button class="link" id="go">войти</button></div>
+  </div>
+</div>
+<script src="admin.js"></script>
+</body>
+</html>

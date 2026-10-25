@@ -10,8 +10,10 @@ DynamicUser=yes
 CacheDirectory=chisto-dot
 LoadCredential=cert:/etc/letsencrypt/live/chisto-dot.flownote.cc/fullchain.pem
 LoadCredential=key:/etc/letsencrypt/live/chisto-dot.flownote.cc/privkey.pem
+# Ключ для отправки счётчиков в /admin (только числа). Файл root 600, в репозитории его нет.
+EnvironmentFile=-/etc/chisto-dns.env
 Environment=DENO_DIR=/var/cache/chisto-dot DENO_NO_UPDATE_CHECK=1 PORT=853 LIMIT_PER_MIN=1200
-ExecStart=/bin/sh -c 'CERT_FILE=$CREDENTIALS_DIRECTORY/cert KEY_FILE=$CREDENTIALS_DIRECTORY/key exec /usr/local/bin/deno run --no-remote --no-prompt --allow-net=0.0.0.0:853,cloudflare-dns.com:443,dns.google:443 --allow-read=$CREDENTIALS_DIRECTORY --allow-env=PORT,LIMIT_PER_MIN,DOH_PATH,UPSTREAM,UPSTREAM_FALLBACK,CACHE_MAX,CERT_FILE,KEY_FILE,MAX_CONNS /opt/chisto-dns/dot.js'
+ExecStart=/bin/sh -c 'CERT_FILE=$CREDENTIALS_DIRECTORY/cert KEY_FILE=$CREDENTIALS_DIRECTORY/key exec /usr/local/bin/deno run --no-remote --no-prompt --allow-net=0.0.0.0:853,cloudflare-dns.com:443,dns.google:443,chisto.flownote.cc:443 --allow-read=$CREDENTIALS_DIRECTORY --allow-env=PORT,LIMIT_PER_MIN,DOH_PATH,UPSTREAM,UPSTREAM_FALLBACK,CACHE_MAX,CERT_FILE,KEY_FILE,MAX_CONNS,PUSH_KEY,PUSH_URL,STATS_SALT /opt/chisto-dns/dot.js'
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 CapabilityBoundingSet=CAP_NET_BIND_SERVICE
 Restart=always

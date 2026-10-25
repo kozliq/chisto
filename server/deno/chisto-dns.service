@@ -8,8 +8,10 @@ Wants=network-online.target
 [Service]
 DynamicUser=yes
 CacheDirectory=chisto-dns
+# Ключ для отправки счётчиков в /admin (только числа). Файл root 600, в репозитории его нет.
+EnvironmentFile=-/etc/chisto-dns.env
 Environment=DENO_DIR=/var/cache/chisto-dns DENO_NO_UPDATE_CHECK=1 PORT=8053 LIMIT_PER_MIN=1200
-ExecStart=/usr/local/bin/deno run --no-remote --no-prompt --allow-net=127.0.0.1:8053,cloudflare-dns.com:443,dns.google:443 --allow-env=PORT,LIMIT_PER_MIN,DOH_PATH,UPSTREAM,UPSTREAM_FALLBACK,CACHE_MAX /opt/chisto-dns/deno.js
+ExecStart=/usr/local/bin/deno run --no-remote --no-prompt --allow-net=127.0.0.1:8053,cloudflare-dns.com:443,dns.google:443,chisto.flownote.cc:443 --allow-env=PORT,LIMIT_PER_MIN,DOH_PATH,UPSTREAM,UPSTREAM_FALLBACK,CACHE_MAX,PUSH_KEY,PUSH_URL,STATS_SALT /opt/chisto-dns/deno.js
 Restart=always
 RestartSec=2
 CPUQuota=100%

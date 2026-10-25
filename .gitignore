@@ -37,3 +37,6 @@ brand/*
 !brand/kit/
 brand/kit/crest-source-1024.jpg
 brand/kit/tg-banner-1280x720.png
+cloudflare/.admin-key
+cloudflare/.push-key
+cloudflare/.stats-salt

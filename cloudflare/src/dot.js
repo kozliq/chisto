@@ -2,7 +2,7 @@
 // Каждое сообщение DNS идёт с двумя байтами длины впереди (RFC 7858); внутри отдаём его тому же worker.fetch.
 // Запуск: deno run --allow-net --allow-env --allow-read src/dot.js   (CERT_FILE, KEY_FILE — сертификат для имени сервера)
 import worker from './worker.js';
-import { makeEnv } from './server-env.js';
+import { makeEnv, ctx } from './server-env.js';
 
 const env = makeEnv();
 const MAX_MSG = 4096;
@@ -36,7 +36,7 @@ async function serve(conn) {
       const res = await worker.fetch(new Request('https://dot/dns-query', {
         method: 'POST', body: msg,
         headers: { 'content-type': 'application/dns-message', 'cf-connecting-ip': ip },
-      }), env);
+      }), env, ctx);
       if (!res.ok) return; // лимит или мусор — просто закрываем соединение
       const answer = new Uint8Array(await res.arrayBuffer());
       const out = new Uint8Array(answer.length + 2);

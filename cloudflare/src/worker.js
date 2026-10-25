@@ -4,6 +4,7 @@
 import LIST from './blocklist.json' with { type: 'json' };
 import { parseQuestion, answerInfo, blockedAnswer, servfail, refused, b64urlDecode, rcode, limitKey, floorTtl, BLOCK_TTL } from './dns.js';
 import { botRequest } from './bot.js';
+import { Stats, dayOf, botEvents, DOWNLOADS, sameKey, adminNumbers } from './stats.js';
 
 const BLOCK = new Set(LIST.block);
 const ALLOW = new Set(LIST.allow);
@@ -20,6 +21,21 @@ function isBlocked(name) {
     if (i < 0) return false;
     d = d.slice(i + 1);
   }
+}
+
+// Общие счётчики для /admin. Без привязки D1 (env.DB) ничего не делают.
+const stats = new Stats();
+// На своём сервере (Deno) базы нет: env.STATS_SINK забирает пачку и отправляет её Worker на /api/push.
+function track(env, ctx, keys, ids = []) {
+  if (!env.DB && !env.STATS_SINK) return;
+  const day = dayOf();
+  ctx.waitUntil((async () => {
+    for (const [k, n] of Object.entries(keys)) if (n) stats.add(day, k, n);
+    for (const [name, id] of ids) if (id != null) await stats.seen(day, name, id, env.STATS_SALT || '');
+    if (!stats.due()) return;
+    if (env.DB) await stats.flush(env.DB);
+    else await env.STATS_SINK(stats.take());
+  })());
 }
 
 const reply = (body, maxAge = 10) => new Response(body, {
@@ -93,11 +109,37 @@ async function readLimited(request) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     // Telegram-бот (webhook). Без TG_TOKEN в секретах Worker отвечает 403.
-    if (url.pathname === '/tg' && request.method === 'POST') return botRequest(request, env, `${url.origin}/`);
-    if (url.pathname !== (env.DOH_PATH || '/dns-query')) return env.ASSETS.fetch(request);
+    if (url.pathname === '/tg' && request.method === 'POST') {
+      return botRequest(request, env, `${url.origin}/`, (update, calls) => {
+        const { keys, user } = botEvents(update, calls);
+        track(env, ctx, keys, user != null ? [['bot', user]] : []);
+      });
+    }
+    // Страница /admin отдаётся как обычный файл (site/admin.html), цифры — только с ключом.
+    if (url.pathname === '/api/push' && request.method === 'POST') {
+      const got = (request.headers.get('authorization') || '').replace(/^Bearer /, '');
+      if (!env.DB || !(await sameKey(got, env.PUSH_KEY))) return new Response('forbidden', { status: 403 });
+      const batch = await request.json().catch(() => null);
+      stats.merge(batch);
+      ctx.waitUntil(stats.flush(env.DB));
+      return new Response('ok');
+    }
+    if (url.pathname === '/api/admin') {
+      const got = (request.headers.get('authorization') || '').replace(/^Bearer /, '');
+      if (!env.DB || !(await sameKey(got, env.ADMIN_KEY))) return new Response('forbidden', { status: 403, headers: { 'cache-control': 'no-store' } });
+      return Response.json(await adminNumbers(env.DB), { headers: { 'cache-control': 'no-store' } });
+    }
+    if (url.pathname !== (env.DOH_PATH || '/dns-query')) {
+      if (request.method === 'GET' && !/TelegramBot/.test(request.headers.get('user-agent') || '')) {
+        const dl = DOWNLOADS[url.pathname];
+        if (dl) track(env, ctx, { [dl]: 1 });
+        else if (url.pathname === '/') track(env, ctx, { site: 1 }, [['site', request.headers.get('cf-connecting-ip')]]);
+      }
+      return env.ASSETS.fetch(request);
+    }
 
     if (request.method !== 'GET' && request.method !== 'POST') {
       return new Response('method not allowed', { status: 405 });
@@ -111,7 +153,7 @@ export default {
     // Проверяем до чтения тела, чтобы отказ ничего не стоил.
     if (env.DOH_LIMIT) {
       const { success } = await env.DOH_LIMIT.limit({ key: limitKey(request.headers.get('cf-connecting-ip')) });
-      if (!success) return new Response('slow down', { status: 429, headers: { 'retry-after': '60' } });
+      if (!success) { track(env, ctx, { limited: 1 }); return new Response('slow down', { status: 429, headers: { 'retry-after': '60' } }); }
     }
 
     let query;
@@ -133,14 +175,16 @@ export default {
     if (!question) return new Response('bad query', { status: 400 });
     // ANY-запросы не нужны обычным устройствам и годятся только для усиления атак.
     if (question.type === 255) return reply(refused(query, question), 300);
-    if (isBlocked(question.name)) return reply(blockedAnswer(query, question), BLOCK_TTL);
+    const who = [['dns', limitKey(request.headers.get('cf-connecting-ip'))]];
+    if (isBlocked(question.name)) { track(env, ctx, { dns: 1, blocked: 1 }, who); return reply(blockedAnswer(query, question), BLOCK_TTL); }
 
     const answer = await cachedUpstream(env, query);
     if (!answer) return reply(servfail(query, question), 0);
 
     // CNAME-маскировка: трекер прячется под stat.site.ru → CNAME → tracker.example.
     const info = answerInfo(answer);
-    if (info.cnames.some(isBlocked)) return reply(blockedAnswer(query, question), BLOCK_TTL);
+    if (info.cnames.some(isBlocked)) { track(env, ctx, { dns: 1, blocked: 1 }, who); return reply(blockedAnswer(query, question), BLOCK_TTL); }
+    track(env, ctx, { dns: 1 }, who);
     if (rcode(answer) !== 0) return reply(answer, info.minTtl); // ошибки и NXDOMAIN — как пришли
     return reply(floorTtl(answer, MIN_TTL), Math.max(info.minTtl, MIN_TTL));
   },
