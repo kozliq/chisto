@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Чисто — блокировщик рекламы",
   "short_name": "Чисто",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Скрывает рекламу и трекеры на сайтах и пропускает рекламные вставки в роликах YouTube. Адреса страниц никуда не отправляет.",
   "permissions": [
     "declarativeNetRequest",

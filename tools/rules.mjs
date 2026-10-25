@@ -175,6 +175,9 @@ export function toDnr(network, budget) {
     const condition = {};
     if (r.regex) {
       if (/\(\?[=!<]|\\[1-9]|\\[bB]/.test(r.regex)) { dropped++; continue; }
+      // Повтор {100,} и больше раздувает регулярку сверх 2 КБ памяти Chrome: правило пропускается с ошибкой на странице расширений.
+      const reps = [...r.regex.matchAll(/\{(\d+)(?:,(\d*))?\}/g)].map((m) => Math.max(+m[1], +(m[2] || 0)));
+      if (reps.some((n) => n >= 100)) { dropped++; continue; }
       condition.regexFilter = r.regex;
     } else if (r.pattern && r.pattern !== '*') condition.urlFilter = r.pattern;
     if (o.caseSensitive) condition.isUrlFilterCaseSensitive = true;

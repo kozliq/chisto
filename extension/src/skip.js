@@ -134,8 +134,7 @@ function merge(list) {
   return out;
 }
 
-const GATE_MS = 350;       // столько держим уже играющий ролик ради ответа сети
-const GATE_LOADING_MS = 1500; // пока плеер сам грузится и кадра ещё нет, ждать можно дольше — этого не видно
+const GATE_MS = 1500;      // столько ролик с нуля ждёт ответа базы (без звука и прозрачный)
 const START_EPS = 0.5;     // вставка «с нуля»: начало не позже 0:00.5
 const SEEK_PAD = 0.05;
 
@@ -184,7 +183,9 @@ function watchFrames(v) {
 }
 
 // ── Старт с нуля: не даём вставке сыграть, пока ждём ответ SponsorBlock ──
-let hold = null; // { id, ours (ждём своей паузы), held (мы ставили на паузу), cancelled, done }
+// Паузу не ставим: плеер YouTube принимает её за паузу человека и может не запуститься снова.
+// Вместо этого на время ожидания ролик без звука и прозрачный — выглядит как обычная загрузка.
+let hold = null; // { id, done }
 
 const startsAtZero = (list) => list.find((s) => s.start <= START_EPS) ?? null;
 
@@ -199,26 +200,22 @@ async function gateStart(v, id) {
   if (!enabled || inAd() || !id || id !== videoId) return;
   if (v.currentTime > START_EPS) return;                   // продолжение с середины или ссылка с ?t=
   if (hold?.id === id && !hold.done) return;               // уже ждём этот ролик
-  const h = (hold = { id, ours: false, held: false, cancelled: false, done: false });
-  const onPause = () => { if (h.ours) h.ours = false; else h.cancelled = true; }; // пауза не наша — человек остановил сам
-  v.addEventListener('pause', onPause);
-  if (!fastReady && !v.paused) { h.ours = h.held = true; v.pause(); }
-  // Кадра ещё нет (readyState < 3) — плеер всё равно грузится, ждём ответа дольше; дальше пауза уже заметна.
-  const list = fastReady ? segments : await withTimeout(fast, v.readyState < 3 ? GATE_LOADING_MS : GATE_MS);
-  v.removeEventListener('pause', onPause);
-  h.done = true;
-  if (id !== videoId || h.id !== id) return;
-  const first = startsAtZero(list ?? segments);
-  if (first && enabled) {
-    const hit = skipTarget(Math.max(v.currentTime, first.start), [first], ignored, v.duration);
-    if (hit) jump(v, hit);                                  // до запуска воспроизведения, без ожидания timeupdate
+  const h = (hold = { id, done: false });
+  const veil = !fastReady;
+  const wasMuted = v.muted, wasOpacity = v.style.opacity;
+  if (veil) { v.muted = true; v.style.opacity = '0'; }
+  try {
+    const list = fastReady ? segments : await withTimeout(fast, GATE_MS);
+    if (id !== videoId || hold !== h) return;
+    const first = startsAtZero(list ?? segments);
+    if (first && enabled) {
+      const hit = skipTarget(Math.max(v.currentTime, first.start), [first], ignored, v.duration);
+      if (hit) jump(v, hit);                                // до первого кадра, без ожидания timeupdate
+    }
+  } finally {
+    h.done = true;
+    if (veil) { v.style.opacity = wasOpacity; v.muted = wasMuted; }
   }
-  if (h.held && !h.cancelled && v.paused) resume(v);
-}
-
-function resume(v) {
-  const p = v.play();
-  if (p?.catch) p.catch(() => document.querySelector('.ytp-play-button')?.click());
 }
 
 // ── Интерфейс поверх плеера: только текст, без плашек-кнопок ──
