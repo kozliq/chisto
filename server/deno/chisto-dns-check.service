@@ -1,0 +1,6 @@
+[Unit]
+Description=Chisto DNS health check
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /usr/local/sbin/chisto-dns-check

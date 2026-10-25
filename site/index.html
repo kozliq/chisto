@@ -7,6 +7,8 @@
 <meta name="theme-color" content="#1c1a1b">
 <link rel="preload" href="fonts/tinos-cyrillic-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/tinos-cyrillic-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/tinos-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/tinos-latin-700.woff2" as="font" type="font/woff2" crossorigin>
 <meta name="referrer" content="no-referrer">
 <title>Чисто — блокировка рекламы</title>
 <meta name="description" content="Убирает рекламу и слежку на телефоне и компьютере. Бесплатно, без регистрации и аккаунта.">
@@ -23,10 +25,10 @@
 </head>
 <body>
 <div class="bar">
-  <a class="brand" href="./"><img src="crest-sm.webp" alt="" width="26" height="36"><span data-brand>Чисто</span></a>
+  <p class="motto">Мы за&nbsp;чистый интернет</p>
   <nav aria-label="Ссылки">
     <a href="https://github.com/kozliq/chisto" rel="noopener">GitHub</a>
-    <a href="https://t.me/chisto_ads_bot" rel="noopener" id="barTg">Бот в Telegram</a>
+    <a href="https://t.me/chisto_ads_bot" rel="noopener" id="barTg">Бот в&nbsp;Telegram</a>
   </nav>
 </div>
 
@@ -35,143 +37,146 @@
   <div class="hero-text">
     <h1 data-brand>Чисто</h1>
     <p class="lead">Убирает рекламу и&nbsp;слежку на&nbsp;телефоне и&nbsp;компьютере.</p>
-    <p class="facts">Бесплатно. Без регистрации и&nbsp;аккаунта.</p>
+    <p class="facts">Бесплатно. Без&nbsp;регистрации и&nbsp;аккаунта.</p>
     <p class="status" id="status" aria-live="polite"><span class="dot"></span><span id="statusText">Проверяю сервер…</span></p>
   </div>
 </header>
 
 <main>
+  <h2 class="pick-title">Где нужна защита?</h2>
   <nav class="platforms" aria-label="Устройство">
-    <a href="#ios" data-p="ios">iPhone и iPad</a>
+    <a href="#ios" data-p="ios">iPhone и&nbsp;iPad</a>
     <a href="#android" data-p="android">Android</a>
     <a href="#desktop" data-p="desktop">Компьютер</a>
     <a href="#router" data-p="router">Роутер</a>
-    <a href="#vpn" data-p="vpn">Использую VPN</a>
+    <a href="#vpn" data-p="vpn">У&nbsp;меня VPN</a>
   </nav>
-  <p class="detected" id="detected"></p>
 
   <!-- ─── iPhone ─── -->
   <section id="p-ios" data-section="ios" hidden>
-    <h2>Профиль — для всего iPhone</h2>
-    <p>Работает во&nbsp;всех приложениях и&nbsp;браузерах, включая Chrome и&nbsp;Яндекс&nbsp;Браузер.</p>
+    <h2>iPhone и&nbsp;iPad</h2>
+    <p>Защита включается сразу во&nbsp;всех приложениях и&nbsp;браузерах: Safari, Chrome, Яндекс Браузер. Установка&nbsp;— около минуты.</p>
     <a class="action" href="dl/chisto.mobileconfig" download>
-      <span class="mark" aria-hidden="true">↓</span><span>Скачать профиль для iPhone</span>
+      <span class="mark" aria-hidden="true">↓</span><span>Скачать профиль для&nbsp;iPhone</span>
     </a>
-    <p class="count">4 касания и код-пароль. Меньше iOS не позволяет никому.</p>
     <ol class="steps">
-      <li>«Разрешить» — в окне загрузки (открывайте в Safari).</li>
-      <li>Настройки → вверху «Профиль загружен».</li>
-      <li>«Установить» → код-пароль.</li>
-      <li>Ещё раз «Установить». iOS напишет «Не подписан» — честно: чужими сертификатами не подписываем.</li>
+      <li>Нажмите кнопку выше (лучше в&nbsp;Safari) и&nbsp;в&nbsp;окне выберите «Разрешить».</li>
+      <li>Откройте «Настройки»&nbsp;— вверху появится строка «Профиль загружен». Нажмите на&nbsp;неё.</li>
+      <li>Нажмите «Установить» и&nbsp;введите код-пароль от&nbsp;телефона.</li>
+      <li>Ещё раз «Установить»&nbsp;— готово.</li>
     </ol>
-    <p class="hint vpn-note">Всегда включён VPN (Happ, Shadowrocket, sing-box…)? Профиль не ставьте: VPN перебьёт его DNS или зациклит интернет. <a href="#vpn">Вам сюда →</a></p>
-    <p class="hint">Стоит другой DNS-профиль? Тогда ещё один шаг: Настройки → Основные → VPN и управление устройством → DNS → <b data-brand>Чисто</b>.</p>
-    <p class="hint">Расширения в браузерах на iPhone Apple ставить не даёт — ни в Chrome, ни в других. Поэтому профиль.</p>
-    <p class="off"><b>Как выключить</b>, если какой-то сайт не открывается: Настройки → Основные → VPN и управление устройством → профиль <span data-brand>Чисто</span> → «Удалить профиль». После удаления ничего не остаётся.</p>
+    <p class="hint">iOS напишет «Не&nbsp;подписан». Это нормально: подписывать профиль чужим сертификатом мы не&nbsp;стали. Внутри только адрес DNS-сервера, больше ничего.</p>
+    <p class="hint vpn-note">Если у&nbsp;вас постоянно включён VPN (Happ, Shadowrocket и&nbsp;похожие), профиль не&nbsp;ставьте: они мешают друг другу. <a href="#vpn">Вам сюда →</a></p>
+    <p class="hint">Уже стоит другой DNS-профиль? Включите наш: Настройки → Основные → VPN и&nbsp;управление устройством → DNS → <b data-brand>Чисто</b>.</p>
+    <p class="hint">Расширения для&nbsp;браузеров на&nbsp;iPhone Apple не&nbsp;разрешает, поэтому здесь профиль.</p>
+    <p class="off"><b>Как выключить</b>, если какой-то&nbsp;сайт не&nbsp;открывается: Настройки → Основные → VPN и&nbsp;управление устройством → профиль <span data-brand>Чисто</span> → «Удалить профиль». После удаления ничего не&nbsp;остаётся.</p>
     <div id="iosApp" hidden>
       <h3>Приложение</h3>
-      <p>То же самое, но включается одной кнопкой и добавляет блокировщик для Safari.</p>
-      <a class="action small" id="iosAppLink" href="#"><span class="mark" aria-hidden="true">→</span><span>Открыть в App Store</span></a>
+      <p>То&nbsp;же&nbsp;самое, но&nbsp;включается одной кнопкой и&nbsp;добавляет блокировщик для&nbsp;Safari.</p>
+      <a class="action small" id="iosAppLink" href="#"><span class="mark" aria-hidden="true">→</span><span>Открыть в&nbsp;App Store</span></a>
     </div>
   </section>
 
   <!-- ─── Android ─── -->
   <section id="p-android" data-section="android" hidden>
     <div data-needs-dot>
-      <h2>Частный DNS — без программ</h2>
-      <p>Android 9 и новее. Работает во всех приложениях и браузерах.</p>
-      <p class="count">Скопировать и 3 касания в настройках.</p>
-      <a class="action" href="#" id="copyHost">
-        <span class="mark" aria-hidden="true">⧉</span><span>Скопировать адрес <b class="host" data-host></b></span>
-      </a>
+      <h2>Частный DNS&nbsp;— без&nbsp;программ</h2>
+      <p>Android 9 и&nbsp;новее. Работает во&nbsp;всех приложениях и&nbsp;браузерах.</p>
+      <p class="label">Адрес для&nbsp;вставки</p>
+      <div class="copybox"><code data-host></code><button type="button" class="copy">Скопировать</button></div>
       <ol class="steps">
-        <li>Настройки → Сеть и интернет (или «Подключения» → «Другие настройки») → Частный DNS.</li>
-        <li>Выберите «Имя хоста провайдера частного DNS».</li>
-        <li>Вставьте адрес и нажмите «Сохранить».</li>
+        <li>Скопируйте адрес из&nbsp;рамки выше.</li>
+        <li>Настройки → Сеть и&nbsp;интернет (или&nbsp;«Подключения» → «Другие настройки») → Частный DNS.</li>
+        <li>Выберите «Имя хоста провайдера частного DNS», вставьте адрес и&nbsp;нажмите «Сохранить».</li>
       </ol>
     </div>
     <div id="apkBlock">
       <h2>Приложение</h2>
-      <p>Кнопка «вкл/выкл» для всего телефона. Приложение поднимает локальный VPN только для DNS-запросов: остальной трафик идёт напрямую и не записывается.</p>
+      <p>Одна кнопка «вкл/выкл» для&nbsp;всего телефона. Приложение поднимает локальный VPN только для&nbsp;DNS-запросов: остальной трафик идёт напрямую и&nbsp;не&nbsp;записывается.</p>
       <a class="action" href="dl/chisto.apk" id="apkLink">
         <span class="mark" aria-hidden="true">↓</span><span>Скачать приложение (APK)</span>
       </a>
       <ol class="steps">
-        <li>Android спросит про «неизвестный источник» — разрешите для браузера. Это файл с нашего сайта, не из Google Play.</li>
-        <li>Установите и откройте приложение, нажмите «Включить защиту».</li>
-        <li>Подтвердите системное окно «Запрос на подключение» — это и есть локальный VPN.</li>
+        <li>Android спросит про&nbsp;«неизвестный источник»&nbsp;— разрешите для&nbsp;браузера. Файл с&nbsp;нашего сайта, не&nbsp;из&nbsp;Google Play.</li>
+        <li>Установите и&nbsp;откройте приложение, нажмите «Включить защиту».</li>
+        <li>Подтвердите системное окно «Запрос на&nbsp;подключение»&nbsp;— это и&nbsp;есть локальный VPN.</li>
       </ol>
     </div>
-    <p class="hint vpn-note">Всегда включён VPN? Частный DNS и приложение с ним спорят. <a href="#vpn">Настройка для VPN →</a></p>
-    <h2 id="chromeTitle">Chrome на Android — за&nbsp;минуту</h2>
-    <p id="chromeIntro">Реклама и&nbsp;слежка уберутся на&nbsp;сайтах в&nbsp;Chrome. Приложение для всего телефона&nbsp;— в&nbsp;работе.</p>
-    <a class="action" href="#" id="copyDoh">
-      <span class="mark" aria-hidden="true">⧉</span><span>Скопировать адрес</span>
-    </a>
-    <p class="count">Скопировать и 3 касания в настройках Chrome.</p>
+    <p class="hint vpn-note">Если VPN включён постоянно, «Частный DNS» и&nbsp;приложение с&nbsp;ним спорят. <a href="#vpn">Настройка для&nbsp;VPN →</a></p>
+    <h2 id="chromeTitle">Защита для&nbsp;Chrome&nbsp;— за&nbsp;минуту</h2>
+    <p id="chromeIntro">Реклама и&nbsp;слежка уберутся на&nbsp;сайтах в&nbsp;Chrome. Другие приложения этот способ не&nbsp;защищает&nbsp;— приложение для&nbsp;всего телефона готовится.</p>
+    <p class="label">Адрес для&nbsp;вставки</p>
+    <div class="copybox"><code data-doh></code><button type="button" class="copy">Скопировать</button></div>
     <ol class="steps">
-      <li>Chrome → ⋮ (справа вверху) → Настройки → Конфиденциальность и безопасность.</li>
-      <li>«Использовать безопасный DNS» → включить → «Свой» (или «Выбрать другого поставщика» → «Свой»).</li>
-      <li>Вставьте адрес <code data-doh></code> — готово, сохранять не нужно.</li>
+      <li>Скопируйте адрес из&nbsp;рамки выше.</li>
+      <li>Откройте Chrome, нажмите ⋮ (справа вверху) → «Настройки» → «Конфиденциальность и&nbsp;безопасность».</li>
+      <li>Включите «Использовать безопасный DNS» и&nbsp;выберите «Свой» (или&nbsp;«Выбрать другого поставщика» → «Свой»).</li>
+      <li>Вставьте адрес в&nbsp;поле. Сохранять ничего не&nbsp;нужно.</li>
     </ol>
-    <p class="hint">«Частный DNS» в&nbsp;настройках самого Android сюда не&nbsp;подходит: он требует другой протокол, и&nbsp;интернет пропадёт.</p>
-    <p class="off"><b>Как выключить</b>, если какой-то сайт не открывается: Chrome → Настройки → Конфиденциальность и безопасность → «Использовать безопасный DNS» → выключить.</p>
+    <p class="hint">«Частный DNS» в&nbsp;настройках самого Android сюда не&nbsp;подходит: ему нужен другой протокол, и&nbsp;интернет пропадёт.</p>
+    <p class="off"><b>Как выключить</b>, если какой-то&nbsp;сайт не&nbsp;открывается: Chrome → Настройки → Конфиденциальность и&nbsp;безопасность → «Использовать безопасный DNS» → выключить.</p>
   </section>
 
   <!-- ─── Компьютер ─── -->
   <section id="p-desktop" data-section="desktop" hidden>
-    <h2>Расширение для браузера</h2>
-    <p>Основной способ для сайтов: режет рекламу, прячет баннеры и стены «отключите блокировщик». Chrome, Edge, Яндекс Браузер, Opera, Brave, Firefox.</p>
+    <h2>Расширение для&nbsp;браузера</h2>
+    <p>Главный способ для&nbsp;сайтов: убирает рекламу и&nbsp;баннеры, прячет окна «отключите блокировщик». Подходит для&nbsp;Chrome, Edge, Яндекс Браузера, Opera, Brave и&nbsp;Firefox.</p>
     <a class="action" href="#" id="extLink">
       <span class="mark" aria-hidden="true">+</span><span id="extLabel">Установить расширение</span>
     </a>
-    <p class="count" id="extCount">Из магазина — 1 клик. Из архива — 3 шага, один раз.</p>
+    <p class="count" id="extCount">Из&nbsp;магазина&nbsp;— 1 клик. Из&nbsp;архива&nbsp;— 3 шага, один раз.</p>
     <div id="extManual">
-      <p class="hint" id="extManualNote">В магазинах расширения пока нет — ставится из архива с сайта (или файлом из бота <a href="https://t.me/chisto_ads_bot" rel="noopener">@chisto_ads_bot</a>) за три шага:</p>
+      <p class="hint" id="extManualNote">В&nbsp;магазинах расширения пока нет&nbsp;— оно ставится из&nbsp;архива с&nbsp;этого сайта (или&nbsp;файлом из&nbsp;бота <a href="https://t.me/chisto_ads_bot" rel="noopener">@chisto_ads_bot</a>). Три шага, один раз:</p>
       <ol class="steps" id="stepsChrome">
-        <li>Распакуйте архив в папку, которую не будете удалять.</li>
-        <li>Откройте <code>chrome://extensions</code> (в Edge, Opera и Яндекс Браузере адрес тот же) и включите «Режим разработчика».</li>
-        <li>«Загрузить распакованное» → выберите эту папку.</li>
+        <li>Распакуйте скачанный архив в&nbsp;папку, которую не&nbsp;будете удалять (например, в&nbsp;«Документы»).</li>
+        <li>Откройте страницу расширений: скопируйте адрес ниже, вставьте в&nbsp;адресную строку браузера и&nbsp;нажмите Enter. В&nbsp;Edge, Opera и&nbsp;Яндекс Браузере адрес тот же.
+          <div class="copybox"><code>chrome://extensions</code><button type="button" class="copy">Скопировать</button></div>
+        </li>
+        <li>Включите «Режим разработчика» (переключатель вверху), нажмите «Загрузить распакованное» и&nbsp;выберите папку из&nbsp;первого шага.</li>
       </ol>
       <ol class="steps" id="stepsFirefox" hidden>
-        <li>Откройте <code>about:debugging#/runtime/this-firefox</code>.</li>
-        <li>«Загрузить временное дополнение» → выберите скачанный архив.</li>
-        <li>Честно: временное дополнение исчезнет после перезапуска Firefox. Постоянно — только после публикации в addons.mozilla.org.</li>
+        <li>Откройте страницу отладки: скопируйте адрес ниже, вставьте в&nbsp;адресную строку и&nbsp;нажмите Enter.
+          <div class="copybox"><code>about:debugging#/runtime/this-firefox</code><button type="button" class="copy">Скопировать</button></div>
+        </li>
+        <li>Нажмите «Загрузить временное дополнение» и&nbsp;выберите скачанный архив.</li>
+        <li>Временное дополнение исчезает после перезапуска Firefox. Насовсем&nbsp;— только после публикации в&nbsp;addons.mozilla.org.</li>
       </ol>
-      <p class="hint">Другой браузер: <a href="dl/chisto-chrome.zip" download>архив для Chrome и похожих</a> · <a href="dl/chisto-firefox.zip" download>архив для Firefox</a></p>
+      <p class="hint">Другой браузер: <a href="dl/chisto-chrome.zip" download>архив для&nbsp;Chrome и&nbsp;похожих</a> · <a href="dl/chisto-firefox.zip" download>архив для&nbsp;Firefox</a></p>
     </div>
-    <p class="off"><b>Как выключить</b>, если какой-то сайт не открывается: значок расширения → «Выключить на этом сайте» или «Поставить на паузу везде».</p>
+    <p class="off"><b>Как выключить</b>, если какой-то&nbsp;сайт не&nbsp;открывается: значок расширения → «Выключить на&nbsp;этом сайте» или&nbsp;«Поставить на&nbsp;паузу везде».</p>
 
-    <h2>DNS — по желанию</h2>
-    <p>Режет рекламные домены не только на страницах, но и в программах.</p>
+    <h2>Защита для&nbsp;программ&nbsp;— по&nbsp;желанию</h2>
+    <p>Расширение работает только в&nbsp;браузере. Чтобы реклама и&nbsp;слежка резались ещё и&nbsp;в&nbsp;программах, настройте DNS одним из&nbsp;способов ниже.</p>
     <details>
       <summary>Только браузер: Chrome, Edge, Яндекс Браузер</summary>
+      <p class="label">Адрес для&nbsp;вставки</p>
+      <div class="copybox"><code data-doh></code><button type="button" class="copy">Скопировать</button></div>
       <ol class="steps">
-        <li>Настройки → Конфиденциальность и безопасность → Безопасность → «Использовать безопасный DNS».</li>
-        <li>«Выбрать поставщика» → «Свой» → <code data-doh></code>.</li>
-        <li>Выключить — там же, переключателем.</li>
+        <li>Настройки → «Конфиденциальность и&nbsp;безопасность» → «Безопасность» → «Использовать безопасный DNS».</li>
+        <li>Выберите «Свой» и&nbsp;вставьте адрес из&nbsp;рамки.</li>
+        <li>Выключить можно там же, переключателем.</li>
       </ol>
     </details>
     <details data-needs-ip>
       <summary>Windows 11</summary>
       <ol class="steps">
-        <li>Параметры → Сеть и Интернет → Wi-Fi или Ethernet → свойства оборудования → «Назначение DNS-сервера» → Изменить → Вручную.</li>
-        <li>IPv4 включить, предпочитаемый DNS: <code data-ip></code>.</li>
-        <li>«DNS через HTTPS» → Вкл (вручную), шаблон: <code data-doh></code>.</li>
+        <li>Параметры → Сеть и&nbsp;Интернет → Wi-Fi или&nbsp;Ethernet → свойства оборудования → «Назначение DNS-сервера» → «Изменить» → «Вручную».</li>
+        <li>Включите IPv4, в&nbsp;«Предпочитаемый DNS» впишите: <code data-ip></code>.</li>
+        <li>«DNS через HTTPS» → «Вкл. (вручную)», шаблон: <code data-doh></code>.</li>
       </ol>
     </details>
     <details>
-      <summary>macOS — для всех программ</summary>
+      <summary>macOS&nbsp;— для&nbsp;всех программ</summary>
       <ol class="steps">
-        <li>Скачайте <a href="dl/chisto.mobileconfig" download>тот же профиль, что для iPhone</a>.</li>
-        <li>Системные настройки → Основные → Управление устройствами (в старых macOS — «Профили») → двойной клик по профилю → Установить, пароль Mac.</li>
+        <li>Скачайте <a href="dl/chisto.mobileconfig" download>тот же&nbsp;профиль, что&nbsp;для&nbsp;iPhone</a>.</li>
+        <li>Системные настройки → Основные → «Управление устройствами» (в&nbsp;старых macOS&nbsp;— «Профили») → двойной щелчок по&nbsp;профилю → «Установить», пароль от&nbsp;Mac.</li>
         <li>Выключить: там же, кнопка «−».</li>
       </ol>
     </details>
     <details data-needs-dot>
       <summary>Linux (NetworkManager + systemd-resolved)</summary>
       <ol class="steps">
-        <li>В <code>/etc/systemd/resolved.conf</code>: <code>DNS=<span data-ip></span>#<span data-host></span></code> и <code>DNSOverTLS=yes</code>.</li>
+        <li>В&nbsp;файле <code>/etc/systemd/resolved.conf</code> укажите: <code>DNS=<span data-ip></span>#<span data-host></span></code> и <code>DNSOverTLS=yes</code>.</li>
         <li><code>sudo systemctl restart systemd-resolved</code>.</li>
         <li>Проверка: <code>resolvectl query ad.doubleclick.net</code> → 0.0.0.0.</li>
       </ol>
@@ -180,41 +185,44 @@
 
   <!-- ─── Роутер ─── -->
   <section id="p-router" data-section="router" hidden>
-    <h2>Один раз на роутере — и в этой сети ставить ничего не надо</h2>
-    <p>Лучший режим «вообще не париться», но только для своей сети: в гостях и в мобильном интернете не работает.</p>
+    <h2>Роутер&nbsp;— один раз и&nbsp;для&nbsp;всей квартиры</h2>
+    <p>Настроили роутер&nbsp;— и&nbsp;все устройства дома, включая телевизор, защищены без&nbsp;установки программ. Работает только в&nbsp;этой Wi-Fi сети: в&nbsp;гостях и&nbsp;в&nbsp;мобильном интернете защиты не&nbsp;будет.</p>
+    <p class="label">Адрес для&nbsp;вставки</p>
+    <div class="copybox"><code data-doh></code><button type="button" class="copy">Скопировать</button></div>
     <ol class="steps">
-      <li>Зайдите в настройки роутера (обычно 192.168.0.1 или 192.168.1.1).</li>
-      <li>Найдите DNS-over-HTTPS (Keenetic, MikroTik, OpenWrt, ASUS с Merlin)<span data-needs-dot> или DNS-over-TLS</span>.</li>
-      <li><span data-needs-dot>DoT: <code data-host></code>, порт 853. </span>DoH: <code data-doh></code>.</li>
-      <li>Отключите «DNS провайдера», иначе роутер будет ходить мимо.</li>
+      <li>Зайдите в&nbsp;настройки роутера (обычно в&nbsp;браузере: 192.168.0.1 или&nbsp;192.168.1.1; пароль&nbsp;— на&nbsp;наклейке роутера).</li>
+      <li>Найдите «DNS-over-HTTPS» (есть в&nbsp;Keenetic, MikroTik, OpenWrt, ASUS с&nbsp;Merlin)<span data-needs-dot> или&nbsp;«DNS-over-TLS»</span>.</li>
+      <li><span data-needs-dot>Для&nbsp;DoT: <code data-host></code>, порт 853. </span>Для&nbsp;DoH вставьте адрес из&nbsp;рамки выше.</li>
+      <li>Отключите «DNS провайдера», иначе роутер будет обходить фильтр.</li>
     </ol>
-    <p class="hint">Подробно по моделям — <a href="https://github.com/kozliq/chisto/blob/main/docs/ROUTER.md" rel="noopener">инструкция на GitHub</a>.</p>
-    <p class="off"><b>Как выключить</b>: в тех же настройках верните «DNS провайдера».</p>
+    <p class="hint">Подробно по&nbsp;моделям&nbsp;— <a href="https://github.com/kozliq/chisto/blob/main/docs/ROUTER.md" rel="noopener">инструкция на&nbsp;GitHub</a>.</p>
+    <p class="off"><b>Как выключить</b>: в&nbsp;тех же&nbsp;настройках верните «DNS провайдера».</p>
   </section>
 
   <!-- ─── VPN ─── -->
   <section id="p-vpn" data-section="vpn" hidden>
-    <h2>У меня включён VPN</h2>
-    <p>Профиль <code>.mobileconfig</code> и «Частный DNS» тут не нужны: туннель VPN всё равно отправляет DNS-запросы своему серверу и обходит их. Поэтому вставляем «Чисто» прямо в VPN-клиент — две вещи: DNS-адрес и список доменов.</p>
+    <h2>У&nbsp;меня включён VPN</h2>
+    <p>Если VPN работает постоянно, обычные способы (профиль для&nbsp;iPhone, «Частный DNS») не&nbsp;сработают: VPN отправляет все запросы на&nbsp;свой сервер. Поэтому «Чисто» подключается прямо в&nbsp;программу VPN&nbsp;— понадобятся два значения: адрес DNS и&nbsp;список доменов.</p>
+    <p class="label">Выберите свою программу</p>
     <p class="vpn-pick" id="vpnPick" role="tablist" aria-label="VPN-клиент"></p>
     <div id="vpnBody" aria-live="polite"></div>
-    <p class="hint">Сайты в браузере на компьютере лучше закрывает <a href="#desktop">расширение</a> — оно с VPN не конфликтует.</p>
-    <p class="off"><b>Как выключить</b>: верните прежний DNS в клиенте и уберите правило со списком.</p>
+    <p class="hint">Сайты на&nbsp;компьютере лучше закрывает <a href="#desktop">расширение</a> — с&nbsp;VPN оно не&nbsp;конфликтует.</p>
+    <p class="off"><b>Как выключить</b>: верните прежний DNS в&nbsp;программе и&nbsp;уберите правило со&nbsp;списком.</p>
   </section>
 
   <section class="levels">
-    <h2>Что убирается, а что нет</h2>
+    <h2>Что&nbsp;убирается, а&nbsp;что&nbsp;нет</h2>
     <dl>
-      <dt>Сайты в браузере</dt>
+      <dt>Сайты в&nbsp;браузере</dt>
       <dd>Расширение. Основной эффект: баннеры, всплывающие окна, счётчики слежки.</dd>
-      <dt>Реклама блогеров на YouTube</dt>
-      <dd>Расширение. Вставки «про банк» и «партнёра выпуска» проматываются сами — посреди ролика сразу, и в самом начале ролика — почти сразу. Промотало лишнее — «Вернуть» в углу плеера.</dd>
-      <dt>VPN и блокировщик вместе</dt>
-      <dd>Не спорят. Выберите во вкладке <a href="#vpn">«Использую VPN»</a> свой клиент — «Чисто» встанет внутрь туннеля, а расширение работает поверх как обычно.</dd>
-      <dt>Приложения и система</dt>
-      <dd>DNS. Отрезает отдельные рекламные и трекерные домены. Не убирает рекламу, которая приходит с того же адреса, что и сам контент.</dd>
+      <dt>Реклама блогеров на&nbsp;YouTube</dt>
+      <dd>Расширение. Вставки «про&nbsp;банк» и&nbsp;«партнёра выпуска» проматываются сами&nbsp;— посреди ролика сразу, и&nbsp;в&nbsp;самом начале ролика&nbsp;— почти сразу. Если пропущено лишнее, нажмите «Вернуть» в&nbsp;углу плеера.</dd>
+      <dt>VPN и&nbsp;блокировщик вместе</dt>
+      <dd>Не&nbsp;конфликтуют. Выберите во&nbsp;вкладке <a href="#vpn">«У&nbsp;меня VPN»</a> свою программу&nbsp;— «Чисто» встанет внутрь туннеля, а&nbsp;расширение работает поверх как обычно.</dd>
+      <dt>Приложения и&nbsp;система</dt>
+      <dd>DNS. Отрезает отдельные рекламные и&nbsp;трекерные домены. Не&nbsp;убирает рекламу, которая приходит с&nbsp;того же&nbsp;адреса, что&nbsp;и&nbsp;сам контент.</dd>
       <dt class="no">YouTube, TikTok, Instagram</dt>
-      <dd class="no">Официальные приложения не поддерживаются: их реклама идёт с тех же серверов, что и видео. Ни профиль, ни приложение её не уберут.</dd>
+      <dd class="no">Официальные приложения не&nbsp;поддерживаются: их реклама идёт с&nbsp;тех же&nbsp;серверов, что&nbsp;и&nbsp;видео. Ни&nbsp;профиль, ни&nbsp;приложение её не&nbsp;уберут.</dd>
     </dl>
   </section>
 </main>
@@ -223,24 +231,23 @@
 
 <footer>
   <div class="foot">
-    <p id="tgLine" hidden>Скинуть другу проще через бота: <a id="tgLink" href="#" rel="noopener"></a> — там те же кнопки.</p>
+    <p id="tgLine" hidden>Отправить другу удобнее через бота: <a id="tgLink" href="#" rel="noopener"></a> — там те же&nbsp;кнопки.</p>
 
-    <p class="more">Другой проект студии: <a href="https://kachalka.flownote.cc/" rel="noopener">Качалка</a> — сохранение видео из YouTube, TikTok и VK без водяных знаков.</p>
+    <p class="more">Другой проект студии: <a href="https://kachalka.flownote.cc/" rel="noopener">Качалка</a> — сохранение видео из&nbsp;YouTube, TikTok и&nbsp;VK без&nbsp;водяных знаков.</p>
 
-    <a class="ksd" href="https://ksd.flownote.cc/?from=chisto" rel="noopener" aria-label="Студия KSD — другие работы автора">
-      <img src="ksd.svg" alt="" width="44" height="44">
-      <span><b>Чисто сделала студия KSD</b> — бесплатно и от души. Сайты у нас тоже без рекламы: <u>глянуть</u></span>
+    <a class="ksd" href="https://ksd.flownote.cc/?from=chisto" rel="noopener" aria-label="Студия KSD — работы студии">
+      <span><b>Чисто&nbsp;— проект студии KSD.</b> Разрабатываем сайты и&nbsp;Telegram-боты без&nbsp;рекламы и&nbsp;чужих трекеров. <u>Работы студии</u></span>
     </a>
 
     <details class="donate" id="donate">
-      <summary>Если хочется сказать спасибо</summary>
-      <p>Чисто бесплатное и таким останется. Ничего не просим — это просто на кофе, и ни на что не влияет.</p>
+      <summary>Поддержать проект</summary>
+      <p>Проект бесплатный и&nbsp;останется таким. Поддержка добровольна и&nbsp;ни&nbsp;на&nbsp;что&nbsp;не&nbsp;влияет.</p>
       <code id="btcAddr">bc1qr2nqfktv7ywvus02qfa8k4cd2jak6mkhg357zy</code>
       <p><a href="#" id="btcCopy">Скопировать адрес</a> · Bitcoin (BTC), только основная сеть</p>
-      <p class="warn">Сверяйте адрес с <a href="https://github.com/kozliq/chisto/blob/main/DONATE.md" rel="noopener">DONATE.md в репозитории</a>, а не с сообщениями и скриншотами. Звёздочками Telegram — командой /donate в боте.</p>
+      <p class="warn">Сверяйте адрес с <a href="https://github.com/kozliq/chisto/blob/main/DONATE.md" rel="noopener">DONATE.md в&nbsp;репозитории</a>, а&nbsp;не&nbsp;с&nbsp;сообщениями и&nbsp;скриншотами. Звёздочками Telegram&nbsp;— командой /donate в&nbsp;боте.</p>
     </details>
 
-    <p>Что видит сервер: только DNS-запрос (имя сайта) — чтобы ответить на него. Журнал запросов выключен, адреса страниц и трафик сайтов через сервер не идут. Код открыт: <a href="https://github.com/kozliq/chisto" rel="noopener">github.com/kozliq/chisto</a>.</p>
+    <p>Что&nbsp;видит сервер: только DNS-запрос (имя сайта)&nbsp;— чтобы ответить на&nbsp;него. Журнал запросов выключен, адреса страниц и&nbsp;трафик сайтов через сервер не&nbsp;идут. Код открыт: <a href="https://github.com/kozliq/chisto" rel="noopener">github.com/kozliq/chisto</a>.</p>
     <p class="host-line">Сервер: <code data-host></code> · DoH: <code data-doh></code></p>
   </div>
 </footer>

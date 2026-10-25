@@ -49,6 +49,29 @@ async function upstream(env, query) {
   return last;
 }
 
+// Кэш ответов в памяти процесса — на своём сервере (CACHE_MAX > 0): популярные домены не ходят
+// к публичному DNS каждый раз. Ключ — весь запрос без ID, так что флаги и EDNS тоже учитываются.
+const cache = new Map();
+async function cachedUpstream(env, query) {
+  const max = Number(env.CACHE_MAX || 0);
+  if (!max) return upstream(env, query);
+  const key = String.fromCharCode.apply(null, query.subarray(2));
+  const hit = cache.get(key);
+  if (hit && hit.until > Date.now()) {
+    const a = hit.answer.slice();
+    a[0] = query[0]; a[1] = query[1];
+    return a;
+  }
+  const answer = await upstream(env, query);
+  if (answer && (rcode(answer) === 0 || rcode(answer) === 3)) {
+    const ttl = Math.min(Math.max(answerInfo(answer).minTtl, 30), 3600);
+    cache.delete(key);
+    if (cache.size >= max) cache.delete(cache.keys().next().value);
+    cache.set(key, { answer, until: Date.now() + ttl * 1000 });
+  }
+  return answer;
+}
+
 /** Тело POST читаем не больше лимита: мегабайтное тело не попадает в память. */
 async function readLimited(request) {
   if (Number(request.headers.get('content-length') || 0) > MAX_QUERY) return null;
@@ -112,7 +135,7 @@ export default {
     if (question.type === 255) return reply(refused(query, question), 300);
     if (isBlocked(question.name)) return reply(blockedAnswer(query, question), BLOCK_TTL);
 
-    const answer = await upstream(env, query);
+    const answer = await cachedUpstream(env, query);
     if (!answer) return reply(servfail(query, question), 0);
 
     // CNAME-маскировка: трекер прячется под stat.site.ru → CNAME → tracker.example.

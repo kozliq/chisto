@@ -4,6 +4,8 @@
   Cache-Control: no-cache
 /dl/chisto.apk
   Content-Type: application/vnd.android.package-archive
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
 /rules/update.json
   Cache-Control: max-age=600
   Access-Control-Allow-Origin: *

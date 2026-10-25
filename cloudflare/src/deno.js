@@ -22,6 +22,7 @@ const env = {
   DOH_PATH: get('DOH_PATH', '/dns-query'),
   UPSTREAM: get('UPSTREAM', 'https://cloudflare-dns.com/dns-query'),
   UPSTREAM_FALLBACK: get('UPSTREAM_FALLBACK', 'https://dns.google/dns-query'),
+  CACHE_MAX: get('CACHE_MAX', '50000'), // ~10 МБ памяти; живёт столько, сколько разрешает TTL ответа
   DOH_LIMIT,
   // Сайт и бот живут в Worker; здесь только DNS.
   ASSETS: { fetch: () => new Response('not found', { status: 404 }) },

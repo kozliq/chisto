@@ -33,20 +33,36 @@ async function sha256Hex(text) {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function fromSponsorBlock(id) {
+// Ответы SponsorBlock по id ролика: повторный заход и ролик, на который навели мышь, — без ожидания сети.
+const sbCache = new Map();
+const SB_CACHE_MAX = 60;
+
+function fromSponsorBlock(id) {
+  if (!sbCache.has(id)) {
+    if (sbCache.size >= SB_CACHE_MAX) sbCache.delete(sbCache.keys().next().value);
+    const p = askSponsorBlock(id);
+    sbCache.set(id, p);
+    p.then((list) => { if (!list.ok) sbCache.delete(id); });
+  }
+  return sbCache.get(id).then((r) => r.list);
+}
+
+async function askSponsorBlock(id) {
   try {
     const prefix = (await sha256Hex(id)).slice(0, 4);
     const res = await fetch(`${API}/skipSegments/${prefix}?categories=${encodeURIComponent(JSON.stringify(CATEGORIES))}`,
       { credentials: 'omit' });
-    if (!res.ok) return [];
+    // 404 — у этого префикса нет ни одной вставки: ответ тоже окончательный.
+    if (!res.ok) return { ok: res.status === 404, list: [] };
     const list = await res.json();
     const hit = Array.isArray(list) ? list.find((v) => v.videoID === id) : null;
-    return (hit?.segments ?? [])
+    const segs = (hit?.segments ?? [])
       .filter((s) => s.actionType === 'skip' && Array.isArray(s.segment))
       .map((s) => ({ start: +s.segment[0], end: +s.segment[1], source: 'база SponsorBlock' }))
       .filter((s) => Number.isFinite(s.start) && s.end > s.start);
+    return { ok: true, list: segs };
   } catch {
-    return [];
+    return { ok: false, list: [] };
   }
 }
 
@@ -118,7 +134,8 @@ function merge(list) {
   return out;
 }
 
-const GATE_MS = 350;       // дольше держать ролик на паузе ради сети нельзя
+const GATE_MS = 350;       // столько держим уже играющий ролик ради ответа сети
+const GATE_LOADING_MS = 1500; // пока плеер сам грузится и кадра ещё нет, ждать можно дольше — этого не видно
 const START_EPS = 0.5;     // вставка «с нуля»: начало не позже 0:00.5
 const SEEK_PAD = 0.05;
 
@@ -186,7 +203,8 @@ async function gateStart(v, id) {
   const onPause = () => { if (h.ours) h.ours = false; else h.cancelled = true; }; // пауза не наша — человек остановил сам
   v.addEventListener('pause', onPause);
   if (!fastReady && !v.paused) { h.ours = h.held = true; v.pause(); }
-  const list = fastReady ? segments : await withTimeout(fast, GATE_MS);
+  // Кадра ещё нет (readyState < 3) — плеер всё равно грузится, ждём ответа дольше; дальше пауза уже заметна.
+  const list = fastReady ? segments : await withTimeout(fast, v.readyState < 3 ? GATE_LOADING_MS : GATE_MS);
   v.removeEventListener('pause', onPause);
   h.done = true;
   if (id !== videoId || h.id !== id) return;
@@ -333,7 +351,31 @@ const onMedia = (e) => {
   gateStart(v, videoId);
 };
 
+/** Наведение на ролик в ленте дольше 150 мс — заранее спрашиваем SponsorBlock (те же 4 символа хеша). */
+let hoverTimer = 0;
+function onHover(e) {
+  const a = e.target instanceof Element ? e.target.closest('a[href*="/watch?v="]') : null;
+  clearTimeout(hoverTimer);
+  if (!a || !enabled) return;
+  const id = new URL(a.href, location.href).searchParams.get('v');
+  if (id && !sbCache.has(id)) hoverTimer = setTimeout(() => fromSponsorBlock(id), e.type === 'touchstart' ? 0 : 150);
+}
+
+/** Соединение с SponsorBlock открываем сразу: на медленном VPN одно рукопожатие TLS — это секунды. */
+function preconnect() {
+  const link = document.createElement('link');
+  link.rel = 'preconnect';
+  link.href = 'https://sponsor.ajay.app';
+  link.crossOrigin = 'anonymous';
+  const root = document.head || document.documentElement;
+  if (root) root.append(link);
+  else document.addEventListener('readystatechange', preconnect, { once: true }); // корня ещё нет — сразу как появится
+}
+
 if (typeof document !== 'undefined' && ext?.storage) {
+  preconnect();
+  document.addEventListener('pointerover', onHover, { capture: true, passive: true });
+  document.addEventListener('touchstart', onHover, { capture: true, passive: true });
   // Запрос к SponsorBlock уходит на document_start, не дожидаясь плеера.
   switchTo(currentId());
   refreshSettings();

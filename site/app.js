@@ -38,10 +38,10 @@
     if (!names[p]) p = detected;
     $$('[data-section]').forEach((s) => (s.hidden = s.dataset.section !== p));
     $$('.platforms a').forEach((a) => a.setAttribute('aria-current', String(a.dataset.p === p)));
-    $('#detected').textContent = p === 'vpn' ? 'Для тех, у кого VPN включён постоянно.' : p === detected
-      ? `Похоже, у вас ${names[detected]}. Не угадали — выберите выше.`
-      : `Выбрано вручную: ${names[p]}.`;
   }
+  // Своё устройство подписываем у вкладки, без отдельной фразы «угадали / не угадали».
+  const mine = $(`.platforms a[data-p="${detected}"]`);
+  if (mine) mine.dataset.me = '';
   window.addEventListener('hashchange', () => show(location.hash.slice(1)));
   show(location.hash.slice(1));
 
@@ -53,25 +53,25 @@
   }
   if (cfg.iosAppUrl) { $('#iosApp').hidden = false; $('#iosAppLink').href = cfg.iosAppUrl; }
 
-  // ── Android: копирование адресов ──
-  function copyOnClick(id, value, done) {
-    const link = $(id);
-    if (!link) return;
-    link.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const label = link.querySelector('span:last-child');
-      try { await navigator.clipboard.writeText(value); label.textContent = done; }
-      catch { label.textContent = `Выделите и скопируйте: ${value}`; }
-    });
-  }
+  // ── Рамки с адресами: кнопка «Скопировать» берёт текст соседнего <code> ──
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('.copybox .copy');
+    if (!b || b.dataset.own) return;
+    const code = b.previousElementSibling;
+    try { await navigator.clipboard.writeText(code.textContent); b.textContent = 'Скопировано'; }
+    catch {
+      // Буфер не дали — выделяем адрес, остаётся «Копировать» в меню.
+      getSelection().selectAllChildren(code);
+      b.textContent = 'Адрес выделен — скопируйте';
+    }
+    setTimeout(() => (b.textContent = 'Скопировать'), 2500);
+  });
   const btc = $('#btcCopy');
   if (btc) btc.addEventListener('click', async (e) => {
     e.preventDefault();
     try { await navigator.clipboard.writeText($('#btcAddr').textContent); btc.textContent = 'Скопировано'; }
     catch { btc.textContent = 'Выделите адрес выше и скопируйте'; }
   });
-  copyOnClick('#copyHost', dnsHost, 'Скопировано — вставьте в «Частный DNS»');
-  copyOnClick('#copyDoh', `https://${dnsHost}${dohPath}`, 'Скопировано — вставьте в Chrome');
 
   // ── Компьютер: магазин, если опубликовано, иначе архив ──
   const store = isFirefox ? cfg.firefoxAmoUrl : cfg.chromeStoreUrl;
@@ -79,11 +79,11 @@
   if (store) {
     ext.href = store;
     $('#extLabel').textContent = isFirefox ? 'Установить из addons.mozilla.org' : 'Установить из Chrome Web Store';
-    $('#extManualNote').textContent = 'Если магазин недоступен — можно поставить из архива:';
+    $('#extManualNote').textContent = 'Если магазин не открывается — можно поставить из архива:';
     $('#extCount').textContent = '1 клик — «Установить» в магазине.';
   } else {
     $('#extCount').textContent = '3 шага, один раз. Потом правила обновляются сами.';
-    if (cfg.tgBot) $('#extManualNote').innerHTML = `В магазинах расширения пока нет — ставится из архива с сайта (или файлом из бота <a href="https://t.me/${cfg.tgBot}" rel="noopener">@${cfg.tgBot}</a>) за три шага:`;
+    if (cfg.tgBot) $('#extManualNote').innerHTML = `В магазинах расширения пока нет — оно ставится из архива с этого сайта (или файлом из бота <a href="https://t.me/${cfg.tgBot}" rel="noopener">@${cfg.tgBot}</a>). Три шага, один раз:`;
     ext.href = isFirefox ? 'dl/chisto-firefox.zip' : 'dl/chisto-chrome.zip';
     ext.setAttribute('download', '');
     $('#extLabel').textContent = isFirefox ? 'Скачать расширение для Firefox' : 'Скачать расширение';
@@ -153,7 +153,8 @@
   function copyBtn(text, label) {
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'vpn-copy';
+    b.className = 'copy';
+    b.dataset.own = '1';
     b.textContent = label;
     b.addEventListener('click', async () => {
       try { await navigator.clipboard.writeText(text); b.textContent = 'Скопировано'; }
@@ -167,7 +168,7 @@
   function item(title, value, steps, copyLabel, extra) {
     const wrap = el('div', 'vpn-item');
     wrap.append(el('h3', '', title));
-    if (value) { wrap.append(el('code', 'val', value), copyBtn(value, copyLabel)); }
+    if (value) { const box = el('div', 'copybox'); box.append(el('code', '', value), copyBtn(value, copyLabel)); wrap.append(box); }
     if (steps) wrap.append(el('p', 'hint', steps));
     if (extra) wrap.append(extra);
     return wrap;
@@ -177,7 +178,7 @@
     const c = CLIENTS[id];
     const body = $('#vpnBody');
     body.replaceChildren();
-    body.append(item('1. DNS-адрес (DoH)', c.dns, c.dnsSteps, 'Скопировать адрес'));
+    body.append(item('1. Адрес DNS', c.dns, c.dnsSteps, 'Скопировать'));
     let extra = null;
     if (c.full) {
       extra = el('p', 'vpn-sizes');
@@ -186,12 +187,12 @@
       a.href = c.full; a.rel = 'noopener';
       extra.append(a);
     }
-    if (c.list) body.append(item('2. Список доменов для REJECT', c.list, c.listSteps, 'Скопировать ссылку', extra));
+    if (c.list) body.append(item('2. Список рекламных доменов', c.list, c.listSteps, 'Скопировать', extra));
     else body.append(item('2. Блокировка доменов', null, c.listSteps));
     if (c.snippet) {
-      const pre = el('pre', '', c.snippet);
-      body.append(item('Готовый фрагмент конфига', null, null, null, pre));
-      body.lastChild.append(copyBtn(c.snippet, 'Скопировать фрагмент'));
+      const box = el('div', 'copybox code');
+      box.append(el('pre', '', c.snippet), copyBtn(c.snippet, 'Скопировать'));
+      body.append(item('Готовый кусок настроек — вставить целиком', null, null, null, box));
     }
     $$('#vpnPick button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.c === id)));
     try { localStorage.setItem('chistoVpnClient', id); } catch { /* приватный режим — не страшно */ }

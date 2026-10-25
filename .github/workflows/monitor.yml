@@ -18,7 +18,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Фильтр отвечает как надо
+      - name: DNS для телефонов (свой сервер) отвечает как надо
+        run: node scripts/check-doh.mjs --host chisto-dns.flownote.cc --no-dot
+      - name: Запасной DNS на Worker отвечает как надо
         run: node scripts/check-doh.mjs --host chisto.flownote.cc --no-dot
       - name: Сайт и защита бота
         run: |
