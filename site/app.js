@@ -105,6 +105,9 @@
   const rulesBase = cfg.dohHost ? (location.host === cfg.dohHost ? `${location.origin}/rules/` : `https://${cfg.dohHost}/rules/`) : 'rules/';
   const doh = dohUrl || `https://${dnsHost}${dohPath}`;
   const list = (name, kind = 'lite') => `${rulesBase}${name}-${kind}.${name === 'shadowrocket' ? 'list' : name === 'singbox' ? 'json' : 'txt'}`;
+  // Российские сайты — напрямую, мимо VPN: через иностранный сервер Rutube, VK и банки грузятся бесконечно или не открываются.
+  // Вся зона .ru/.su/.рф + домены VK и Яндекса вне .ru. DNS «Чисто» при этом работает и для них.
+  const ruDomains = ['ru', 'su', 'xn--p1ai', 'vk.com', 'vk.me', 'userapi.com', 'vkuseraudio.net', 'vkuservideo.net', 'vk-cdn.net', 'mycdn.me', 'yandex.net', 'yandex.com', 'yastatic.net'];
   const CLIENTS = {
     // Happ — самый частый клиент в РФ, поэтому первый и по умолчанию. Своя страница: renderHapp.
     happ: { label: 'Happ', custom: () => renderHapp() },
@@ -113,20 +116,20 @@
       dns: doh,
       dnsSteps: 'Настройки → DNS → «Добавить» → вставьте адрес. Или строкой в конфиге: dns-server = адрес, system',
       list: list('shadowrocket'), full: list('shadowrocket', 'full'),
-      listSteps: 'Конфиг → «Правила» → «Добавить правило» → тип RULE-SET, URL — адрес списка, действие REJECT.',
-      snippet: `[General]\ndns-server = ${doh}, system\n\n[Rule]\nRULE-SET,${list('shadowrocket')},REJECT`,
+      listSteps: 'Конфиг → «Правила» → «Добавить правило» → тип RULE-SET, URL — адрес списка, действие REJECT. Российские сайты — напрямую (DIRECT): правила в куске ниже.',
+      snippet: `[General]\ndns-server = ${doh}, system\n\n[Rule]\nRULE-SET,${list('shadowrocket')},REJECT\n${ruDomains.map((d) => `DOMAIN-SUFFIX,${d},DIRECT`).join('\n')}\nGEOIP,RU,DIRECT`,
     },
     singbox: {
       label: 'sing-box',
       dns: doh,
       dnsSteps: 'sing-box 1.12 и новее. Добавьте сервер в «dns» (строка ниже) и укажите его в dns.final или в правиле для нужных доменов.',
       list: list('singbox'), full: list('singbox', 'full'),
-      listSteps: 'Добавьте rule_set и правило reject в «route» (строка ниже). Список обновляется раз в сутки.',
+      listSteps: 'Добавьте rule_set и правило reject в «route» (строка ниже). Список обновляется раз в сутки. Второе правило пускает российские сайты напрямую (нужен outbound с тегом direct).',
       snippet: JSON.stringify({
         dns: { servers: [{ type: 'https', tag: 'chisto', server: dnsHost, path: dohPath, domain_resolver: 'local' }] },
         route: {
           rule_set: [{ type: 'remote', tag: 'chisto-ads', format: 'source', url: list('singbox'), download_detour: 'direct', update_interval: '1d' }],
-          rules: [{ rule_set: 'chisto-ads', action: 'reject' }],
+          rules: [{ rule_set: 'chisto-ads', action: 'reject' }, { domain_suffix: ruDomains, outbound: 'direct' }],
         },
       }, null, 2),
     },
@@ -135,7 +138,7 @@
       dns: doh,
       dnsSteps: 'v2rayNG, V2Box, Streisand и др.: в настройках DNS (или в JSON-конфиге, блок «dns» → «servers») добавьте адрес первым.',
       list: null,
-      listSteps: 'В правила маршрутизации добавьте домен-правило geosite:category-ads-all с действием block. Свой список из 46 тысяч доменов в эти клиенты руками не вставить — его работу делает DoH.',
+      listSteps: 'В правила маршрутизации добавьте домен-правило geosite:category-ads-all с действием block, а geosite:category-ru и geoip:ru — с действием direct (российские сайты напрямую). Свой список из 46 тысяч доменов в эти клиенты руками не вставить — его работу делает DoH.',
       snippet: JSON.stringify({ dns: { servers: [doh, '1.1.1.1'] } }, null, 2),
     },
     clash: {
@@ -143,8 +146,8 @@
       dns: doh,
       dnsSteps: 'В конфиге добавьте адрес в dns.nameserver (блок ниже).',
       list: list('clash'), full: list('clash', 'full'),
-      listSteps: 'Добавьте rule-provider и правило REJECT в «rules» (блок ниже).',
-      snippet: `dns:\n  enable: true\n  nameserver:\n    - ${doh}\n\nrule-providers:\n  chisto:\n    type: http\n    behavior: domain\n    format: text\n    url: "${list('clash')}"\n    path: ./ruleset/chisto.txt\n    interval: 86400\n\nrules:\n  - RULE-SET,chisto,REJECT`,
+      listSteps: 'Добавьте rule-provider и правило REJECT в «rules» (блок ниже). Правила DIRECT пускают российские сайты напрямую.',
+      snippet: `dns:\n  enable: true\n  nameserver:\n    - ${doh}\n\nrule-providers:\n  chisto:\n    type: http\n    behavior: domain\n    format: text\n    url: "${list('clash')}"\n    path: ./ruleset/chisto.txt\n    interval: 86400\n\nrules:\n  - RULE-SET,chisto,REJECT\n${ruDomains.map((d) => `  - DOMAIN-SUFFIX,${d},DIRECT`).join('\n')}\n  - GEOIP,RU,DIRECT`,
     },
   };
 
@@ -184,7 +187,7 @@
     Geoipurl: 'https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat',
     Geositeurl: 'https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat',
     DnsHosts: { [dnsHost]: happIp },
-    DirectSites: ['geosite:category-ru'],
+    DirectSites: ['geosite:category-ru', ...ruDomains.map((d) => `domain:${d}`)],
     DirectIp: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '169.254.0.0/16', '224.0.0.0/4', '255.255.255.255', 'geoip:ru'],
     ProxySites: [], ProxyIp: [],
     BlockSites: ['geosite:category-ads-all'], BlockIp: [],
@@ -210,7 +213,7 @@
       'В&nbsp;Happ выключите VPN большой круглой кнопкой и&nbsp;включите снова.',
       'Готово. Проверка: откройте <a href="https://ad.doubleclick.net" rel="noopener">ad.doubleclick.net</a>&nbsp;— если страница не&nbsp;открылась, реклама режется.',
     ));
-    main.append(p('hint', 'Российские сайты (банки, Госуслуги, Rutube) после этого идут напрямую, остальное&nbsp;— через VPN, как раньше.'));
+    main.append(p('hint', '<b>Rutube, VK, банки и&nbsp;Госуслуги идут напрямую, мимо VPN</b>&nbsp;— так они открываются быстро и&nbsp;не&nbsp;грузятся бесконечно. Реклама на&nbsp;них всё равно режется. Остальное&nbsp;— через VPN, как раньше.'));
 
     const more = el('details', 'more-ios');
     more.append(el('summary', '', 'Не получилось?'));
@@ -218,6 +221,7 @@
     const box = el('div', 'copybox'); box.append(el('code', '', 'Ссылка для Happ'), copyBtn(happLink, 'Скопировать ссылку'));
     more.append(box);
     more.append(p('', '<b>Под серверами написано «JSON»</b> (например, «VLESS | xhttp | TLS | JSON»). Такие подписки Happ менять не&nbsp;даёт. Подключайтесь к&nbsp;серверу без пометки JSON или поставьте на&nbsp;компьютер <a href="#desktop">расширение</a>.'));
+    more.append(p('', '<b>Rutube или VK бесконечно грузятся с&nbsp;VPN</b>&nbsp;— нажмите «Добавить в&nbsp;Happ» ещё раз (профиль обновится) и&nbsp;переподключите VPN. Если серверы с&nbsp;пометкой JSON&nbsp;— см. выше: к&nbsp;ним настройка не&nbsp;применяется.'));
     more.append(p('', '<b>Реклама вернулась</b> после обновления подписки&nbsp;— просто нажмите «Добавить в&nbsp;Happ» ещё раз.'));
     more.append(p('', '<b>Как выключить:</b> в&nbsp;Happ «•••» рядом с&nbsp;подпиской → «Маршрутизация» → выключите «Включить маршрутизацию», затем выключите и&nbsp;включите VPN.'));
     body.append(main, more);
