@@ -5,16 +5,25 @@
 <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <p class="brand"><img src="../icons/48.png" alt="">Чисто</p>
+  <button id="shield" class="shield" type="button" aria-pressed="true" title="Включить или выключить везде">
+    <img class="off" src="shield-off.png" alt="">
+    <img class="on" src="shield-on.png" alt="">
+  </button>
+  <h1>Чисто</h1>
   <p id="state" class="state">…</p>
-  <p id="site" class="site"></p>
-  <p><a href="#" id="toggleSite">Выключить на этом сайте</a></p>
-  <p><a href="#" id="togglePause">Поставить на паузу везде</a></p>
-  <p><a href="#" id="toggleSkip">Пропуск рекламы в роликах YouTube: включён</a></p>
-  <p class="note">Сеть режется правилами браузера, адреса страниц никуда не отправляются.
-  Вставки блогеров в YouTube пропускаются по базе <a href="https://sponsor.ajay.app" target="_blank" rel="noopener">SponsorBlock</a>
-  (CC BY-NC-SA 4.0) и таймкодам в описании. Нет в базе — нажмите «Отметить рекламу» под плеером.</p>
-  <p class="motto">Без рекламы и слежки. Бесплатно.</p>
+  <p class="hint">Нажмите на щит, чтобы включить или выключить везде</p>
+
+  <div class="rows">
+    <p id="siteRow"><span id="site" class="site"></span><a href="#" id="toggleSite">выключить здесь</a></p>
+    <p id="skipRow"><a href="#" id="toggleSkip">Реклама блогеров на YouTube: пропускается</a></p>
+  </div>
+
+  <details>
+    <summary>Подробнее</summary>
+    <p>Реклама режется правилами самого браузера, адреса страниц никуда не отправляются.</p>
+    <p>Вставки блогеров на YouTube пропускаются по открытой базе <a href="https://sponsor.ajay.app" target="_blank" rel="noopener">SponsorBlock</a> (CC BY-NC-SA 4.0) и таймкодам в описании. Нет в базе — нажмите «Отметить рекламу» в углу плеера.</p>
+    <p><a href="https://chisto.flownote.cc" target="_blank" rel="noopener">chisto.flownote.cc</a></p>
+  </details>
   <script src="popup.js" type="module"></script>
 </body>
 </html>

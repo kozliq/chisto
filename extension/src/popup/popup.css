@@ -1,13 +1,33 @@
-:root { color-scheme: dark; }
-body { margin: 0; padding: 16px 18px 14px; width: 280px; background: #0a1024; color: #eef2fb;
-  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+@font-face { font-family: Tinos; font-weight: 400; src: url(fonts/tinos-cyrillic-400.woff2) format("woff2"); unicode-range: U+0400-045F; }
+@font-face { font-family: Tinos; font-weight: 400; src: url(fonts/tinos-latin-400.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F; }
+@font-face { font-family: Tinos; font-weight: 700; src: url(fonts/tinos-cyrillic-700.woff2) format("woff2"); unicode-range: U+0400-045F; }
+@font-face { font-family: Tinos; font-weight: 700; src: url(fonts/tinos-latin-700.woff2) format("woff2"); unicode-range: U+0000-00FF, U+2000-206F; }
+
+:root { color-scheme: dark; --bg: #1c1a1b; --text: #f0ebee; --muted: #b8afb6; --red: #873730; }
+body { margin: 0; padding: 22px 22px 16px; width: 270px; background: var(--bg); color: var(--text);
+  font: 16px/1.45 Tinos, "Times New Roman", serif; text-align: center; }
 p { margin: 0 0 10px; }
-.brand { font: 700 24px/1.1 Literata, Georgia, "Times New Roman", serif; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-.brand img { width: 26px; height: 26px; }
-.state { color: #8fe3a8; font-weight: 600; }
-.state.off { color: #f2b36b; }
-.site { color: #b5bfd8; word-break: break-all; padding-bottom: 10px; border-bottom: 1px solid #24325c; }
-a { color: #eef2fb; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #3f6ef0; text-decoration-thickness: 2px; }
-a:hover { text-decoration-color: #eef2fb; }
-.note { color: #b5bfd8; font-size: 12px; margin-top: 12px; }
-.motto { color: #e2b64f; font-size: 12px; margin-top: 10px; }
+
+/* щит: пустой — выключено, мангуст и кобра появляются — включено */
+.shield { position: relative; display: block; width: 132px; height: 181px; margin: 0 auto 10px; padding: 0;
+  border: 0; background: none; cursor: pointer; }
+.shield img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.shield .on { opacity: 0; filter: blur(6px); transform: scale(.94); transition: opacity .45s ease, filter .45s ease, transform .45s ease; }
+.shield[aria-pressed="true"] .on { opacity: 1; filter: none; transform: none; }
+.shield:focus-visible { outline: 2px solid var(--muted); outline-offset: 6px; border-radius: 8px; }
+
+h1 { margin: 0; font-size: 30px; line-height: 1.1; font-weight: 700; }
+h1::after { content: ""; display: block; width: 40px; height: 2px; margin: 10px auto 12px; background: var(--red); }
+.state { font-weight: 700; font-size: 17px; }
+.hint { color: var(--muted); font-size: 13px; }
+
+.rows { margin-top: 16px; padding-top: 14px; border-top: 1px solid #3a3537; }
+.site { color: var(--muted); word-break: break-all; margin-right: 8px; }
+a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--red); text-decoration-thickness: 2px; }
+a:hover { text-decoration-color: var(--text); }
+
+details { margin-top: 6px; color: var(--muted); font-size: 13px; text-align: left; }
+summary { cursor: pointer; text-align: center; list-style: none; color: var(--muted); font-size: 14px;
+  text-decoration: underline; text-underline-offset: 3px; }
+summary::-webkit-details-marker { display: none; }
+details[open] summary { margin-bottom: 10px; }
