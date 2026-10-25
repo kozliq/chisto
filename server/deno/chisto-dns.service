@@ -8,7 +8,7 @@ Wants=network-online.target
 [Service]
 DynamicUser=yes
 CacheDirectory=chisto-dns
-Environment=DENO_DIR=/var/cache/chisto-dns DENO_NO_UPDATE_CHECK=1 PORT=8053 LIMIT_PER_MIN=120
+Environment=DENO_DIR=/var/cache/chisto-dns DENO_NO_UPDATE_CHECK=1 PORT=8053 LIMIT_PER_MIN=1200
 ExecStart=/usr/local/bin/deno run --no-remote --no-prompt --allow-net=127.0.0.1:8053,cloudflare-dns.com:443,dns.google:443 --allow-env=PORT,LIMIT_PER_MIN,DOH_PATH,UPSTREAM,UPSTREAM_FALLBACK,CACHE_MAX /opt/chisto-dns/deno.js
 Restart=always
 RestartSec=2

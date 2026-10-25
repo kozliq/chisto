@@ -83,12 +83,13 @@
       <h2>Частный DNS&nbsp;— без&nbsp;программ</h2>
       <p>Android 9 и&nbsp;новее. Работает во&nbsp;всех приложениях и&nbsp;браузерах.</p>
       <p class="label">Адрес для&nbsp;вставки</p>
-      <div class="copybox"><code data-host></code><button type="button" class="copy">Скопировать</button></div>
+      <div class="copybox"><code data-dot></code><button type="button" class="copy">Скопировать</button></div>
       <ol class="steps">
         <li>Скопируйте адрес из&nbsp;рамки выше.</li>
         <li>Настройки → Сеть и&nbsp;интернет (или&nbsp;«Подключения» → «Другие настройки») → Частный DNS.</li>
         <li>Выберите «Имя хоста провайдера частного DNS», вставьте адрес и&nbsp;нажмите «Сохранить».</li>
       </ol>
+      <p class="off"><b>Как выключить</b>: там же&nbsp;— «Частный DNS» → «Автоматически» или&nbsp;«Отключено».</p>
     </div>
     <div id="apkBlock">
       <h2>Приложение</h2>
@@ -104,7 +105,7 @@
     </div>
     <p class="hint vpn-note">Если VPN включён постоянно, «Частный DNS» и&nbsp;приложение с&nbsp;ним спорят. <a href="#vpn">Настройка для&nbsp;VPN →</a></p>
     <h2 id="chromeTitle">Защита для&nbsp;Chrome&nbsp;— за&nbsp;минуту</h2>
-    <p id="chromeIntro">Реклама и&nbsp;слежка уберутся на&nbsp;сайтах в&nbsp;Chrome. Другие приложения этот способ не&nbsp;защищает&nbsp;— приложение для&nbsp;всего телефона готовится.</p>
+    <p id="chromeIntro">Реклама и&nbsp;слежка уберутся на&nbsp;сайтах в&nbsp;Chrome. Другие приложения этот способ не&nbsp;защищает<span data-needs-dot>&nbsp;— для&nbsp;всего телефона есть «Частный DNS» выше</span>.</p>
     <p class="label">Адрес для&nbsp;вставки</p>
     <div class="copybox"><code data-doh></code><button type="button" class="copy">Скопировать</button></div>
     <ol class="steps">
@@ -113,7 +114,7 @@
       <li>Включите «Использовать безопасный DNS» и&nbsp;выберите «Свой» (или&nbsp;«Выбрать другого поставщика» → «Свой»).</li>
       <li>Вставьте адрес в&nbsp;поле. Сохранять ничего не&nbsp;нужно.</li>
     </ol>
-    <p class="hint">«Частный DNS» в&nbsp;настройках самого Android сюда не&nbsp;подходит: ему нужен другой протокол, и&nbsp;интернет пропадёт.</p>
+    <p class="hint" data-no-dot>«Частный DNS» в&nbsp;настройках самого Android сюда не&nbsp;подходит: ему нужен другой протокол, и&nbsp;интернет пропадёт.</p>
     <p class="off"><b>Как выключить</b>, если какой-то&nbsp;сайт не&nbsp;открывается: Chrome → Настройки → Конфиденциальность и&nbsp;безопасность → «Использовать безопасный DNS» → выключить.</p>
   </section>
 
@@ -176,7 +177,7 @@
     <details data-needs-dot>
       <summary>Linux (NetworkManager + systemd-resolved)</summary>
       <ol class="steps">
-        <li>В&nbsp;файле <code>/etc/systemd/resolved.conf</code> укажите: <code>DNS=<span data-ip></span>#<span data-host></span></code> и <code>DNSOverTLS=yes</code>.</li>
+        <li>В&nbsp;файле <code>/etc/systemd/resolved.conf</code> укажите: <code>DNS=<span data-dot-ip></span>#<span data-dot></span></code> и <code>DNSOverTLS=yes</code>.</li>
         <li><code>sudo systemctl restart systemd-resolved</code>.</li>
         <li>Проверка: <code>resolvectl query ad.doubleclick.net</code> → 0.0.0.0.</li>
       </ol>
@@ -192,7 +193,7 @@
     <ol class="steps">
       <li>Зайдите в&nbsp;настройки роутера (обычно в&nbsp;браузере: 192.168.0.1 или&nbsp;192.168.1.1; пароль&nbsp;— на&nbsp;наклейке роутера).</li>
       <li>Найдите «DNS-over-HTTPS» (есть в&nbsp;Keenetic, MikroTik, OpenWrt, ASUS с&nbsp;Merlin)<span data-needs-dot> или&nbsp;«DNS-over-TLS»</span>.</li>
-      <li><span data-needs-dot>Для&nbsp;DoT: <code data-host></code>, порт 853. </span>Для&nbsp;DoH вставьте адрес из&nbsp;рамки выше.</li>
+      <li><span data-needs-dot>Для&nbsp;DoT: <code data-dot></code>, порт 853. </span>Для&nbsp;DoH вставьте адрес из&nbsp;рамки выше.</li>
       <li>Отключите «DNS провайдера», иначе роутер будет обходить фильтр.</li>
     </ol>
     <p class="hint">Подробно по&nbsp;моделям&nbsp;— <a href="https://github.com/kozliq/chisto/blob/main/docs/ROUTER.md" rel="noopener">инструкция на&nbsp;GitHub</a>.</p>

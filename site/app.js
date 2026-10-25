@@ -12,11 +12,15 @@
   // ── подставляем значения из .env ──
   $$('[data-brand]').forEach((e) => (e.textContent = cfg.brand || 'Чисто'));
   $$('[data-host]').forEach((e) => (e.textContent = dnsHost || '—'));
+  // DoT (Android «Частный DNS») может жить на третьем адресе: Worker и туннель порт 853 не умеют.
+  $$('[data-dot]').forEach((e) => (e.textContent = cfg.dotHost || dnsHost || '—'));
+  $$('[data-dot-ip]').forEach((e) => (e.textContent = cfg.dotIp || cfg.serverIp || '—'));
   $$('[data-doh]').forEach((e) => (e.textContent = dnsHost ? `https://${dnsHost}${dohPath}` : '—'));
   $$('[data-ip]').forEach((e) => (e.textContent = cfg.serverIp || '—'));
   if (cfg.brand) document.title = `${cfg.brand} — блокировка рекламы`;
   // У варианта на Cloudflare Worker нет DoT (порт 853): прячем то, что без него не работает.
   if (!cfg.hasDot) $$('[data-needs-dot]').forEach((e) => e.remove());
+  else $$('[data-no-dot]').forEach((e) => e.remove());
   // Без своего IP (вариант на Worker) ручная настройка Windows невозможна — там нужен адрес сервера.
   if (!cfg.serverIp) $$('[data-needs-ip]').forEach((e) => e.remove());
   if (cfg.apkReady) {
