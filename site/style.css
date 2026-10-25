@@ -32,8 +32,9 @@ h2 { font-size: clamp(25px, 3vw, 32px); line-height: 1.15; font-weight: 700; mar
 h3 { font-size: 21px; font-weight: 700; margin: 36px 0 8px; }
 
 /* шапка */
-.bar { max-width: 1000px; margin: 0 auto; padding: 22px var(--pad) 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.motto { margin: 0; font: 700 20px/1.2 var(--font); letter-spacing: .01em; }
+.bar { max-width: 1000px; margin: 0 auto; padding: 22px var(--pad) 0; display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: clamp(28px, 6vw, 72px); align-items: center; }
+.bar nav { justify-self: end; }
+.motto { margin: 0; text-align: center; font: 700 20px/1.2 var(--font); letter-spacing: .01em; }
 .bar nav { display: flex; gap: 22px; font-size: 17px; }
 
 /* первый экран: герб и текст на одной оси */
@@ -125,9 +126,13 @@ footer code { font-size: 17px; color: var(--muted); }
 
 @media (max-width: 720px) {
   .hero { grid-template-columns: 1fr; gap: 18px; padding-top: 24px; }
-  .crest { justify-self: start; width: 124px; }
-  .hero-text { padding-top: 0; }
-  h1::after { margin: 16px 0 16px; }
+  .bar { grid-template-columns: 1fr; gap: 10px; text-align: center; }
+  .bar nav { justify-self: center; }
+  .crest { justify-self: center; width: 124px; }
+  .hero { text-align: center; }
+  .hero-text { padding-top: 0; margin: 0 auto; }
+  .status { justify-content: center; }
+  h1::after { margin: 16px auto 16px; }
   .facts { margin-bottom: 16px; }
   .bar nav { gap: 16px; font-size: 15px; }
   .bar nav a { white-space: nowrap; }

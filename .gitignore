@@ -30,3 +30,10 @@ ios-profile/.uuids
 android-app/gradle/wrapper/gradle-wrapper.jar
 cloudflare/.tg-token
 .dev.vars
+
+# Мусор macOS и рабочие файлы бренда: в репозитории только brand/kit
+.DS_Store
+brand/*
+!brand/kit/
+brand/kit/crest-source-1024.jpg
+brand/kit/tg-banner-1280x720.png
