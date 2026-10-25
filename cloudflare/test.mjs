@@ -188,3 +188,20 @@ test('ANY-запрос получает REFUSED без ответов', () => {
   assert.equal(a[3] & 0x0f, 5);
   assert.equal(a[7], 0);
 });
+
+test('фаззинг: 50 000 битых пакетов не роняют разбор', () => {
+  let seed = 1;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed % n; };
+  const q = query('ad.doubleclick.net');
+  const a = Uint8Array.from([...q.slice(0, 2), 0x81, 0x80, 0, 1, 0, 2, 0, 0, 0, 0, ...q.slice(12),
+    0xc0, 12, 0, 5, 0, 1, 0, 0, 0, 30, 0, 2, 0xc0, 12, 0xc0, 12, 0, 1, 0, 1, 0, 0, 0, 30, 0, 4, 1, 2, 3, 4]);
+  for (let i = 0; i < 50000; i++) {
+    const b = Uint8Array.from(rnd(4) ? (i % 2 ? q : a) : Array.from({ length: rnd(600) }, () => rnd(256)));
+    for (let k = rnd(8); k >= 0 && b.length; k--) b[rnd(b.length)] = rnd(4) ? rnd(256) : [0, 0xc0, 0xff, 0x3f][rnd(4)];
+    const p = rnd(5) ? b : b.slice(0, rnd(b.length + 1));
+    const qq = parseQuestion(p);
+    if (qq) blockedAnswer(p, qq);
+    answerInfo(p);
+    floorTtl(p, 300);
+  }
+});
