@@ -198,9 +198,31 @@
     DomainStrategy: 'IPIfNonMatch',
     FakeDNS: 'false',
   };
-  // base64url без «=», как в официальном конструкторе routing.happ.su: «/» в ссылке ломает разбор.
-  const happLink = 'happ://routing/onadd/' + btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(happProfile))))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  // Happ на iPhone принимает только обычный base64 (base64url даёт «Неправильные данные для импорта»).
+  // Чтобы в ссылку не попали «/», «+» и «=», вставляем пробелы между элементами JSON (вне строк),
+  // пока base64 не станет чистым: смысл профиля от этого не меняется.
+  const happLink = 'happ://routing/onadd/' + (() => {
+    // Кириллица — через \uXXXX: её байты дают «/» при любом сдвиге.
+    const json = JSON.stringify(happProfile).replace(/[^\x20-\x7e]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+    const bytes = [...json].map((c) => c.charCodeAt(0));
+    const b64 = () => btoa(String.fromCharCode(...bytes));
+    const gaps = () => { // места после { [ , : вне строк
+      const out = [];
+      let str = false;
+      bytes.forEach((c, i) => {
+        if (c === 0x22 && bytes[i - 1] !== 0x5c) str = !str;
+        else if (!str && (c === 0x7b || c === 0x5b || c === 0x2c || c === 0x3a)) out.push(i + 1);
+      });
+      return out;
+    };
+    for (let n = 0; n < 2000; n++) {
+      const bad = b64().search(/[+/=]/);
+      if (bad < 0) break;
+      const at = gaps().filter((g) => g <= Math.floor(bad / 4) * 3 + 2).pop();
+      bytes.splice(at ?? bytes.length, 0, 0x20);
+    }
+    return b64();
+  })();
 
   // Happ: одна кнопка и два шага — всё лишнее спрятано под «Не получилось?».
   function renderHapp() {
