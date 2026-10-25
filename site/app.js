@@ -193,50 +193,34 @@
   };
   const happLink = 'happ://routing/onadd/' + btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(happProfile))));
 
+  // Happ: одна кнопка и два шага — всё лишнее спрятано под «Не получилось?».
   function renderHapp() {
     const body = $('#vpnBody');
     const p = (cls, html) => { const e = el('p', cls); e.innerHTML = html; return e; };
     const ol = (...lis) => { const o = el('ol', 'steps'); for (const html of lis) { const li = el('li'); li.innerHTML = html; o.append(li); } return o; };
 
-    const add = el('div', 'vpn-item');
-    add.append(el('h3', '', '1. Добавьте «Чисто» в Happ'));
+    const main = el('div', 'vpn-item');
+    main.append(p('', 'Happ настроится сам, вручную ничего вводить не&nbsp;нужно.'));
     const a = el('a', 'action');
     a.href = happLink;
-    a.append(el('span', 'mark', '+'), el('span', '', 'Добавить в Happ'));
-    a.querySelector('.mark').setAttribute('aria-hidden', 'true');
-    add.append(a, ol(
-      'Нажмите кнопку на&nbsp;том устройстве, где стоит Happ (iPhone или Mac). Браузер спросит «Открыть в&nbsp;Happ?»&nbsp;— «Открыть».',
-      'Happ спросит «В&nbsp;какую подписку добавить профиль?»&nbsp;— выберите свой VPN. Если VPN несколько, повторите для каждого.',
-      'Подождите полминуты: Happ скачает списки и&nbsp;включит профиль <b>' + (cfg.brand || 'Чисто') + '</b>.',
+    const mark = el('span', 'mark', '+'); mark.setAttribute('aria-hidden', 'true');
+    a.append(mark, el('span', '', 'Добавить в Happ'));
+    main.append(a, ol(
+      'Нажмите кнопку на&nbsp;телефоне или компьютере, где стоит Happ, и&nbsp;согласитесь открыть Happ. Если он спросит, в&nbsp;какую подписку,&nbsp;— выберите свой VPN.',
+      'В&nbsp;Happ выключите VPN большой круглой кнопкой и&nbsp;включите снова.',
+      'Готово. Проверка: откройте <a href="https://ad.doubleclick.net" rel="noopener">ad.doubleclick.net</a>&nbsp;— если страница не&nbsp;открылась, реклама режется.',
     ));
-    add.append(p('hint', 'Кнопка не&nbsp;открыла Happ (бывает в&nbsp;Telegram и&nbsp;других встроенных браузерах)? Скопируйте ссылку, откройте Happ, нажмите «+» в&nbsp;правом верхнем углу → «Вставить из&nbsp;буфера обмена».'));
-    const box = el('div', 'copybox'); box.append(el('code', '', 'Ссылка-профиль для Happ'), copyBtn(happLink, 'Скопировать ссылку'));
-    add.append(box);
+    main.append(p('hint', 'Российские сайты (банки, Госуслуги, Rutube) после этого идут напрямую, остальное&nbsp;— через VPN, как раньше.'));
 
-    const re = el('div', 'vpn-item');
-    re.append(el('h3', '', '2. Переподключите VPN'));
-    re.append(p('', 'В&nbsp;Happ нажмите большую круглую кнопку, чтобы отключиться, и&nbsp;ещё раз&nbsp;— чтобы подключиться. Новые настройки Happ включает только после переподключения.'));
-
-    const chk = el('div', 'vpn-item');
-    chk.append(el('h3', '', '3. Проверьте'));
-    chk.append(p('', 'С&nbsp;включённым VPN откройте <a href="https://ad.doubleclick.net" rel="noopener">ad.doubleclick.net</a>&nbsp;— это рекламный адрес. Страница не&nbsp;открылась&nbsp;— всё работает. Открылась&nbsp;— смотрите ниже.'));
-    chk.append(p('hint', 'Что изменится: реклама и&nbsp;трекеры режутся внутри VPN, российские сайты (Госуслуги, банки, Rutube) идут напрямую, без VPN&nbsp;— как у&nbsp;большинства VPN-сервисов. Остальное&nbsp;— через VPN, как раньше.'));
-
-    const json = el('div', 'vpn-item');
-    json.append(el('h3', '', 'Если у серверов подписки написано «JSON»'));
-    json.append(p('', 'Под названием сервера в&nbsp;Happ мелко написан тип, например «VLESS | xhttp | TLS | JSON». Для таких подписок Happ не&nbsp;принимает чужие профили, поэтому вставьте адрес DNS вручную:'));
-    json.append(ol(
-      'На&nbsp;главном экране Happ нажмите «•••» рядом с&nbsp;названием подписки → «Настройки» → «Маршрутизация» → откройте профиль подписки.',
-      'Найдите раздел «Туннель DNS». Тип&nbsp;— DoH.',
-      'В&nbsp;поле адреса (DoH URL или «Домен DoH») вставьте адрес ниже, в&nbsp;поле IP&nbsp;— ' + happIp + '.',
-      'Сохраните и&nbsp;переподключите VPN (шаг&nbsp;2), затем проверьте (шаг&nbsp;3).',
-    ));
-    const dbox = el('div', 'copybox'); dbox.append(el('code', '', doh), copyBtn(doh, 'Скопировать'));
-    json.append(dbox);
-
-    const off = p('off', '<b>Реклама вернулась после обновления подписки?</b> Некоторые VPN при обновлении присылают свой профиль. В&nbsp;настройках подписки («•••» → «Настройки») включите «Игнорировать импорт маршрутизации» и&nbsp;ещё раз нажмите «Добавить в&nbsp;Happ».');
-    const off2 = p('off', '<b>Как выключить:</b> «•••» у&nbsp;подписки → «Настройки» → «Маршрутизация» → выберите прежний профиль (или выключите «Включить маршрутизацию») и&nbsp;переподключите VPN. Профиль <b>' + (cfg.brand || 'Чисто') + '</b> там же можно удалить.');
-    body.append(add, re, chk, json, off, off2);
+    const more = el('details', 'more-ios');
+    more.append(el('summary', '', 'Не получилось?'));
+    more.append(p('', '<b>Кнопка не открыла Happ.</b> Скопируйте ссылку, затем в&nbsp;Happ: шестерёнка → «Маршрутизация» → «•••» вверху справа → «Импорт профиля».'));
+    const box = el('div', 'copybox'); box.append(el('code', '', 'Ссылка для Happ'), copyBtn(happLink, 'Скопировать ссылку'));
+    more.append(box);
+    more.append(p('', '<b>Под серверами написано «JSON»</b> (например, «VLESS | xhttp | TLS | JSON»). Такие подписки Happ менять не&nbsp;даёт. Подключайтесь к&nbsp;серверу без пометки JSON или поставьте на&nbsp;компьютер <a href="#desktop">расширение</a>.'));
+    more.append(p('', '<b>Реклама вернулась</b> после обновления подписки&nbsp;— просто нажмите «Добавить в&nbsp;Happ» ещё раз.'));
+    more.append(p('', '<b>Как выключить:</b> в&nbsp;Happ «•••» рядом с&nbsp;подпиской → «Маршрутизация» → выключите «Включить маршрутизацию», затем выключите и&nbsp;включите VPN.'));
+    body.append(main, more);
   }
 
   function renderVpn(id) {
