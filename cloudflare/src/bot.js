@@ -91,13 +91,22 @@ export function handleUpdate(update, site, botName = '') {
   const iq = update.inline_query;
   if (iq) {
     out.push({ method: 'answerInlineQuery', body: {
-      inline_query_id: iq.id, cache_time: 3600, is_personal: false,
+      inline_query_id: iq.id, cache_time: 300, is_personal: false,
       results: [{
         type: 'article', id: 'chisto',
-        title: 'Чисто — убрать рекламу',
-        description: 'Бесплатно, без регистрации. iPhone, Android, компьютер.',
-        input_message_content: { message_text: `Убирает рекламу и трекеры, бесплатно и без регистрации: ${site}` },
-        reply_markup: { inline_keyboard: [[{ text: 'Поставить', url: site }]] },
+        title: '🛡 Чисто — убрать рекламу',
+        description: 'Бесплатно, без регистрации. iPhone, Android, компьютер, VPN.',
+        thumbnail_url: `${site}icon.png`, thumbnail_width: 180, thumbnail_height: 180,
+        input_message_content: { message_text: [
+          '🛡 Чисто — убирает рекламу и слежку',
+          '',
+          'Бесплатно, без регистрации и аккаунта.',
+          'iPhone, Android, компьютер — и вместе с VPN.',
+          'На YouTube проматывает рекламу блогеров.',
+          '',
+          `🛡 ${site}`,
+        ].join('\n') },
+        reply_markup: { inline_keyboard: [[{ text: '🛡 Поставить', url: site }]] },
       }],
     } });
   }
