@@ -75,3 +75,11 @@ test('ожидание сети не дольше таймаута', async () =>
   assert.ok(Date.now() - t < 390);
   assert.deepEqual(plain(await c2.withTimeout(Promise.resolve([1]), 350)), [1]);
 });
+
+test('правило с «~тип» не блокирует саму страницу', async () => {
+  const { parseList, toDnr } = await import('../tools/rules.mjs');
+  const { network } = parseList('||dzen.ru^$third-party,~subdocument\n||bar.ru^$document', 't');
+  const [dzen, bar] = toDnr(network, 1e6).overflow;
+  assert.ok(dzen.condition.excludedResourceTypes.includes('main_frame'));
+  assert.deepEqual(bar.condition.resourceTypes, ['main_frame']);
+});

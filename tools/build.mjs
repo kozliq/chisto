@@ -208,7 +208,7 @@ for (const target of ['chrome', 'firefox']) {
   };
   if (target === 'firefox') {
     manifest.background = { scripts: ['background.js'], type: 'module' };
-    manifest.browser_specific_settings = { gecko: { id: 'chisto@flownote.cc', strict_min_version: '128.0' } };
+    manifest.browser_specific_settings = { gecko: { id: 'chisto@flownote.cc', strict_min_version: '128.0', data_collection_permissions: { required: ['none'] } } };
   } else {
     manifest.background = { service_worker: 'background.js', type: 'module' };
     manifest.minimum_chrome_version = '121';

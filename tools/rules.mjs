@@ -190,7 +190,9 @@ export function toDnr(network, budget) {
       if (exc.length) condition.excludedInitiatorDomains = exc;
     }
     if (o.types.length) condition.resourceTypes = [...new Set(o.types)];
-    else if (o.notTypes.length) condition.excludedResourceTypes = [...new Set(o.notTypes)];
+    // «~тип» в фильтрах не включает саму страницу, а в браузере excludedResourceTypes включает —
+    // без main_frame правило вида ||dzen.ru^$~subdocument блокировало бы переход на сайт целиком.
+    else if (o.notTypes.length) condition.excludedResourceTypes = [...new Set([...o.notTypes, 'main_frame'])];
     let action, priority;
     if (r.exception && o.types.includes('main_frame')) {
       action = { type: 'allowAllRequests' };
