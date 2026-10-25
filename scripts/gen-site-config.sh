@@ -9,6 +9,7 @@ cat > site/config.js <<JS
 window.CHISTO = {
   brand: $(js "${BRAND_NAME:-Чисто}"),
   dohHost: $(js "$DOH_HOST"),
+  dnsHost: $(js "${DNS_HOST:-$DOH_HOST}"),
   dohPath: $(js "${DOH_PATH:-/dns-query}"),
   serverIp: $(js "${SERVER_IP:-}"),
   chromeStoreUrl: $(js "${CHROME_STORE_URL:-}"),

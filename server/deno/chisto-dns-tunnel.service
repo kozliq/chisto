@@ -1,0 +1,13 @@
+[Unit]
+Description=Cloudflare Tunnel for Chisto DNS
+After=network-online.target chisto-dns.service
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/cloudflared tunnel --no-autoupdate --config /etc/cloudflared/chisto-dns.yml run
+Restart=always
+RestartSec=5
+MemoryMax=200M
+
+[Install]
+WantedBy=multi-user.target

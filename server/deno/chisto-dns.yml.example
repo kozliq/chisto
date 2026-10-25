@@ -1,0 +1,8 @@
+# «Чисто»: dns.example.com → DoH-фильтр на этой машине (chisto-dns.service). Отдельный туннель, не трогает Качалку.
+tunnel: ID-ВАШЕГО-ТУННЕЛЯ
+credentials-file: /etc/cloudflared/ID-ВАШЕГО-ТУННЕЛЯ.json
+ingress:
+  - hostname: dns.example.com
+    path: ^/dns-query$
+    service: http://127.0.0.1:8053
+  - service: http_status:404

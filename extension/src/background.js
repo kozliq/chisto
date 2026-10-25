@@ -12,7 +12,20 @@ async function loadJson(file) {
   const res = await fetch(ext.runtime.getURL(file));
   return res.json();
 }
-const cosmeticData = async () => (data ??= await loadJson('cosmetic/specific.json'));
+// Точечные правила лежат шардами (cosmetic/s/N.json): читаем только те, что нужны этому сайту.
+const shardOf = (key, n) => { let h = 0; for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % n; };
+const shards = new Map();
+const cosmeticData = async () => (data ??= await loadJson('cosmetic/meta.json'));
+async function specificFor(host, d) {
+  const out = {};
+  for (const h of suffixes(host)) {
+    const i = shardOf(h, d.shards);
+    if (!shards.has(i)) shards.set(i, loadJson(`cosmetic/s/${i}.json`).catch(() => ({})));
+    const hit = (await shards.get(i))[h];
+    if (hit) out[h] = hit;
+  }
+  return out;
+}
 const getConfig = async () => (config ??= await loadJson('config.json'));
 const settings = () => ext.storage.local.get({ paused: false, allowSites: [] });
 
@@ -30,8 +43,8 @@ function suffixes(host) {
 }
 const matchesSite = (host, list) => suffixes(host).some(h => list.includes(h));
 
-function collect(d, host) {
-  const hit = suffixes(host).map(h => d.specific[h]).filter(Boolean);
+function collect(d, host, specific = d.specific) {
+  const hit = suffixes(host).map(h => specific[h]).filter(Boolean);
   const labels = host.split('.');
   for (let i = 0; i < labels.length - 1; i++) if (d.entity[labels[i]]) hit.push(d.entity[labels[i]]);
   return hit;
@@ -42,7 +55,7 @@ async function cssFor(host) {
   const { remote } = await ext.storage.local.get({ remote: null });
   const r = remote?.cosmetic;
   if (matchesSite(host, d.noCosmetic) || (r && matchesSite(host, r.noCosmetic))) return { useGenericFile: false, css: '' };
-  const hit = [...collect(d, host), ...(r ? collect(r, host) : [])];
+  const hit = [...collect(d, host, await specificFor(host, d)), ...(r ? collect(r, host) : [])];
   const unhide = new Set(hit.flatMap(h => h.unhide));
   const hide = hit.flatMap(h => h.hide).filter(s => !unhide.has(s));
   const extraGeneric = (r?.generic ?? []).filter(s => !unhide.has(s));
@@ -58,19 +71,39 @@ async function cssFor(host) {
   return { useGenericFile: generic, css };
 }
 
-ext.webNavigation.onCommitted.addListener(async ({ tabId, frameId, url }) => {
+// Две ступени, чтобы не нагружать загрузку страницы:
+//  1) onCommitted — только точечный CSS этого сайта (мелкий, сразу);
+//  2) onDOMContentLoaded — общий CSS, один раз в саму страницу, когда разметка уже есть.
+// Сетевая блокировка (declarativeNetRequest) от этого не зависит и работает в ядре браузера.
+async function allowed(url, tabId) {
   const host = hostOf(url);
-  if (!host || tabId < 0) return;
+  if (!host || tabId < 0) return null;
   const s = await settings();
-  if (s.paused || matchesSite(host, s.allowSites)) return;
-  const { useGenericFile, css } = await cssFor(host);
-  const target = { tabId, frameIds: [frameId] };
+  return s.paused || matchesSite(host, s.allowSites) ? null : host;
+}
+
+ext.webNavigation.onCommitted.addListener(async ({ tabId, frameId, url }) => {
+  const host = await allowed(url, tabId);
+  if (!host) return;
+  const { css } = await cssFor(host);
   try {
-    // Общий CSS (~600 КБ) — только в саму страницу: в каждом iframe он тормозит тяжёлые сайты.
-    if (useGenericFile && frameId === 0) await ext.scripting.insertCSS({ target, files: ['cosmetic/generic.css'], origin: 'USER' });
-    if (css.trim()) await ext.scripting.insertCSS({ target, css, origin: 'USER' });
+    if (css.trim()) await ext.scripting.insertCSS({ target: { tabId, frameIds: [frameId] }, css, origin: 'USER' });
   } catch {
     // Служебные страницы браузера и магазина расширений закрыты для расширений — это нормально.
+  }
+});
+
+// Общий CSS — только в саму страницу: в каждом iframe он тормозит тяжёлые сайты.
+ext.webNavigation.onDOMContentLoaded.addListener(async ({ tabId, frameId, url }) => {
+  if (frameId !== 0) return;
+  const host = await allowed(url, tabId);
+  if (!host) return;
+  const { useGenericFile } = await cssFor(host);
+  if (!useGenericFile) return;
+  try {
+    await ext.scripting.insertCSS({ target: { tabId, frameIds: [0] }, files: ['cosmetic/generic.css'], origin: 'USER' });
+  } catch {
+    // см. выше
   }
 });
 

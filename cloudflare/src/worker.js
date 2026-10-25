@@ -1,13 +1,14 @@
 // DoH-фильтр на Cloudflare Workers.
 // Рекламный/трекерный домен → 0.0.0.0. Остальное → пересылаем публичному DoH и отдаём ответ.
 // Ничего не пишем в журналы: ни console.log, ни хранилищ. Observability выключен в wrangler.jsonc.
-import LIST from './blocklist.json';
-import { parseQuestion, answerInfo, blockedAnswer, servfail, refused, b64urlDecode, rcode, limitKey } from './dns.js';
+import LIST from './blocklist.json' with { type: 'json' };
+import { parseQuestion, answerInfo, blockedAnswer, servfail, refused, b64urlDecode, rcode, limitKey, floorTtl, BLOCK_TTL } from './dns.js';
 import { botRequest } from './bot.js';
 
 const BLOCK = new Set(LIST.block);
 const ALLOW = new Set(LIST.allow);
 const MAX_QUERY = 4096;
+const MIN_TTL = 300; // меньше запросов к бесплатному лимиту: 5 минут адрес живёт в кэше телефона
 
 function isBlocked(name) {
   let d = name;
@@ -109,14 +110,15 @@ export default {
     if (!question) return new Response('bad query', { status: 400 });
     // ANY-запросы не нужны обычным устройствам и годятся только для усиления атак.
     if (question.type === 255) return reply(refused(query, question), 300);
-    if (isBlocked(question.name)) return reply(blockedAnswer(query, question));
+    if (isBlocked(question.name)) return reply(blockedAnswer(query, question), BLOCK_TTL);
 
     const answer = await upstream(env, query);
     if (!answer) return reply(servfail(query, question), 0);
 
     // CNAME-маскировка: трекер прячется под stat.site.ru → CNAME → tracker.example.
     const info = answerInfo(answer);
-    if (info.cnames.some(isBlocked)) return reply(blockedAnswer(query, question));
-    return reply(answer, info.minTtl);
+    if (info.cnames.some(isBlocked)) return reply(blockedAnswer(query, question), BLOCK_TTL);
+    if (rcode(answer) !== 0) return reply(answer, info.minTtl); // ошибки и NXDOMAIN — как пришли
+    return reply(floorTtl(answer, MIN_TTL), Math.max(info.minTtl, MIN_TTL));
   },
 };

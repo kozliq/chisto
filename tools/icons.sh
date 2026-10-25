@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 SRC=brand/kit/crest-2048.png
 TMP=$(mktemp -d); trap 'rm -r "$TMP"' EXIT
 # Щит на прозрачном фоне: убираем фон страницы #1c1a1b вокруг рамки и обрезаем по краю.
-magick "$SRC" -fuzz 3% -fill none -draw "color 0,0 floodfill" -trim +repage "$TMP/shield.png"
+magick "$SRC" -fuzz 8% -fill none -draw "color 0,0 floodfill" -trim +repage "$TMP/shield.png"
 magick "$TMP/shield.png" -background none -gravity center -extent "%[fx:max(w,h)]x%[fx:max(w,h)]" "$TMP/sq.png" 2>/dev/null \
   || magick "$TMP/shield.png" -background none -gravity center -extent 1600x1600 "$TMP/sq.png"
 for s in 16 32 48 128; do magick "$TMP/sq.png" -resize ${s}x${s} "extension/src/icons/$s.png"; done

@@ -23,7 +23,7 @@
 </head>
 <body>
 <div class="bar">
-  <a class="brand" href="./"><img src="crest-sm.webp" alt="" width="26" height="33"><span data-brand>Чисто</span></a>
+  <a class="brand" href="./"><img src="crest-sm.webp" alt="" width="26" height="36"><span data-brand>Чисто</span></a>
   <nav aria-label="Ссылки">
     <a href="https://github.com/kozliq/chisto" rel="noopener">GitHub</a>
     <a href="https://t.me/chisto_ads_bot" rel="noopener" id="barTg">Бот в Telegram</a>
@@ -31,7 +31,7 @@
 </div>
 
 <header class="hero">
-  <img class="crest" src="crest.webp" width="600" height="763" alt="Герб «Чисто»: мангуст против кобры — мы против рекламы и слежки">
+  <img class="crest" src="crest.webp" width="600" height="821" alt="Герб «Чисто»: мангуст против кобры — мы против рекламы и слежки">
   <div class="hero-text">
     <h1 data-brand>Чисто</h1>
     <p class="lead">Убирает рекламу и&nbsp;слежку на&nbsp;телефоне и&nbsp;компьютере.</p>
@@ -46,6 +46,7 @@
     <a href="#android" data-p="android">Android</a>
     <a href="#desktop" data-p="desktop">Компьютер</a>
     <a href="#router" data-p="router">Роутер</a>
+    <a href="#vpn" data-p="vpn">Использую VPN</a>
   </nav>
   <p class="detected" id="detected"></p>
 
@@ -63,7 +64,8 @@
       <li>«Установить» → код-пароль.</li>
       <li>Ещё раз «Установить». iOS напишет «Не подписан» — честно: чужими сертификатами не подписываем.</li>
     </ol>
-    <p class="hint">Уже стоит другой DNS или VPN? Тогда ещё один шаг: Настройки → Основные → VPN и управление устройством → DNS → <b data-brand>Чисто</b>.</p>
+    <p class="hint vpn-note">Всегда включён VPN (Happ, Shadowrocket, sing-box…)? Профиль не ставьте: VPN перебьёт его DNS или зациклит интернет. <a href="#vpn">Вам сюда →</a></p>
+    <p class="hint">Стоит другой DNS-профиль? Тогда ещё один шаг: Настройки → Основные → VPN и управление устройством → DNS → <b data-brand>Чисто</b>.</p>
     <p class="hint">Расширения в браузерах на iPhone Apple ставить не даёт — ни в Chrome, ни в других. Поэтому профиль.</p>
     <p class="off"><b>Как выключить</b>, если какой-то сайт не открывается: Настройки → Основные → VPN и управление устройством → профиль <span data-brand>Чисто</span> → «Удалить профиль». После удаления ничего не остаётся.</p>
     <div id="iosApp" hidden>
@@ -100,6 +102,7 @@
         <li>Подтвердите системное окно «Запрос на подключение» — это и есть локальный VPN.</li>
       </ol>
     </div>
+    <p class="hint vpn-note">Всегда включён VPN? Частный DNS и приложение с ним спорят. <a href="#vpn">Настройка для VPN →</a></p>
     <h2 id="chromeTitle">Chrome на Android — за&nbsp;минуту</h2>
     <p id="chromeIntro">Реклама и&nbsp;слежка уберутся на&nbsp;сайтах в&nbsp;Chrome. Приложение для всего телефона&nbsp;— в&nbsp;работе.</p>
     <a class="action" href="#" id="copyDoh">
@@ -189,11 +192,25 @@
     <p class="off"><b>Как выключить</b>: в тех же настройках верните «DNS провайдера».</p>
   </section>
 
+  <!-- ─── VPN ─── -->
+  <section id="p-vpn" data-section="vpn" hidden>
+    <h2>У меня включён VPN</h2>
+    <p>Профиль <code>.mobileconfig</code> и «Частный DNS» тут не нужны: туннель VPN всё равно отправляет DNS-запросы своему серверу и обходит их. Поэтому вставляем «Чисто» прямо в VPN-клиент — две вещи: DNS-адрес и список доменов.</p>
+    <p class="vpn-pick" id="vpnPick" role="tablist" aria-label="VPN-клиент"></p>
+    <div id="vpnBody" aria-live="polite"></div>
+    <p class="hint">Сайты в браузере на компьютере лучше закрывает <a href="#desktop">расширение</a> — оно с VPN не конфликтует.</p>
+    <p class="off"><b>Как выключить</b>: верните прежний DNS в клиенте и уберите правило со списком.</p>
+  </section>
+
   <section class="levels">
     <h2>Что убирается, а что нет</h2>
     <dl>
       <dt>Сайты в браузере</dt>
       <dd>Расширение. Основной эффект: баннеры, всплывающие окна, счётчики слежки.</dd>
+      <dt>Реклама блогеров на YouTube</dt>
+      <dd>Расширение. Вставки «про банк» и «партнёра выпуска» проматываются сами — посреди ролика сразу, и в самом начале ролика — почти сразу. Промотало лишнее — «Вернуть» в углу плеера.</dd>
+      <dt>VPN и блокировщик вместе</dt>
+      <dd>Не спорят. Выберите во вкладке <a href="#vpn">«Использую VPN»</a> свой клиент — «Чисто» встанет внутрь туннеля, а расширение работает поверх как обычно.</dd>
       <dt>Приложения и система</dt>
       <dd>DNS. Отрезает отдельные рекламные и трекерные домены. Не убирает рекламу, которая приходит с того же адреса, что и сам контент.</dd>
       <dt class="no">YouTube, TikTok, Instagram</dt>

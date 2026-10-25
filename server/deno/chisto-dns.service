@@ -1,0 +1,33 @@
+# DoH-фильтр «Чисто» (тот же код, что в Cloudflare Worker). Слушает только 127.0.0.1:8053, снаружи — туннель chisto-dns-tunnel.
+# Не мешает Качалке: максимум одно ядро из трёх и 400 МБ памяти, без доступа к её файлам.
+[Unit]
+Description=Chisto DoH filter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+DynamicUser=yes
+CacheDirectory=chisto-dns
+Environment=DENO_DIR=/var/cache/chisto-dns DENO_NO_UPDATE_CHECK=1 PORT=8053 LIMIT_PER_MIN=120
+ExecStart=/usr/local/bin/deno run --no-remote --no-prompt --allow-net=127.0.0.1:8053,cloudflare-dns.com:443,dns.google:443 --allow-env=PORT,LIMIT_PER_MIN,DOH_PATH,UPSTREAM,UPSTREAM_FALLBACK /opt/chisto-dns/deno.js
+Restart=always
+RestartSec=2
+CPUQuota=100%
+MemoryMax=400M
+TasksMax=64
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+# Закройте службе чужие папки на этом сервере, например:
+# InaccessiblePaths=/opt/другой-проект /etc/cloudflared
+LockPersonality=yes
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target

@@ -84,6 +84,7 @@ async function load({ id, url }) {
 }
 
 // ── 4. Доменный список для Worker ──
+let fullDomains = [];
 {
   const block = new Set(), allow = new Set();
   const exact = new Set(guard.filter(g => !g.startsWith('*.')));
@@ -110,6 +111,7 @@ async function load({ id, url }) {
     for (let i = h.indexOf('.'); i >= 0; i = h.indexOf('.', i + 1)) if (block.has(h.slice(i + 1))) return false;
     return true;
   }).sort();
+  fullDomains = minimal;
   write(p('cloudflare/src/blocklist.json'), JSON.stringify({ updated: new Date().toISOString(), block: minimal, allow: [...allow].sort() }));
   log(`Worker: блокируется ${minimal.length} доменов, исключений ${allow.size}`);
 }
@@ -170,6 +172,11 @@ const update = {
 write(p('site/rules/update.json'), JSON.stringify(update));
 log(`site/rules/update.json: ${dynamic.length} динамических правил`);
 
+const SHARDS = 32;
+const shardOf = (key) => { let h = 0; for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % SHARDS; };
+const heavy = (sel) => /\[[^\]]*\*=/.test(sel) || sel.includes(':has(');
+const light = cosmetic.generic.filter(sel => !heavy(sel));
+log(`косметика: общих лёгких ${light.length}, тяжёлых убрано из общих ${cosmetic.generic.length - light.length}`);
 const host = env.DOH_HOST && env.DOH_HOST !== 'dns.example.com' ? env.DOH_HOST : '';
 const base = JSON.parse(fs.readFileSync(p('extension/manifest.base.json'), 'utf8'));
 for (const target of ['chrome', 'firefox']) {
@@ -177,12 +184,17 @@ for (const target of ['chrome', 'firefox']) {
   fs.rmSync(dist, { recursive: true, force: true });
   fs.cpSync(p('extension/src'), dist, { recursive: true });
   for (const r of rulesets) write(path.join(dist, 'rules', `${r.id}.json`), JSON.stringify(r.rules));
+  // Общий CSS — только дешёвые селекторы. Подстроки в атрибутах ([href*=…], [style*=…]) на каждой
+  // странице заставляют браузер сверять строки у каждого элемента — они остаются лишь точечно, по сайтам.
   write(path.join(dist, 'cosmetic', 'generic.css'),
-    cosmetic.generic.map(s => `${s}{display:none!important}`).join('\n') + '\n');
-  write(path.join(dist, 'cosmetic', 'generic.json'), JSON.stringify(cosmetic.generic));
-  write(path.join(dist, 'cosmetic', 'specific.json'), JSON.stringify({
-    specific: cosmetic.specific, entity: cosmetic.entity,
-    noGeneric: cosmetic.noGeneric, noCosmetic: cosmetic.noCosmetic,
+    light.map(s => `${s}{display:none!important}`).join('\n') + '\n');
+  write(path.join(dist, 'cosmetic', 'generic.json'), JSON.stringify(light));
+  // Точечные правила режем на шарды по хешу домена: фон читает 1–2 небольших файла, а не 2 МБ JSON.
+  const shards = Array.from({ length: SHARDS }, () => ({}));
+  for (const [k, v] of Object.entries(cosmetic.specific)) shards[shardOf(k)][k] = v;
+  shards.forEach((sh, i) => write(path.join(dist, 'cosmetic', 's', `${i}.json`), JSON.stringify(sh)));
+  write(path.join(dist, 'cosmetic', 'meta.json'), JSON.stringify({
+    shards: SHARDS, entity: cosmetic.entity, noGeneric: cosmetic.noGeneric, noCosmetic: cosmetic.noCosmetic,
   }));
   // http — только для локальной проверки (wrangler dev на 127.0.0.1).
   const scheme = /^(localhost|127\.0\.0\.1)(:|$)/.test(host) ? 'http' : 'https';
@@ -206,6 +218,30 @@ for (const target of ['chrome', 'firefox']) {
   log(`расширение ${target}: extension/dist/${target}, site/dl/chisto-${target}.zip`);
 }
 if (!host) log('  DOH_HOST не задан — расширение не будет скачивать обновления правил');
+
+// ── 5б. Наборы доменов для VPN-клиентов (Shadowrocket, sing-box, Clash/Mihomo, Happ, V2Ray) ──
+// «lite» — домены из русских списков, EasyPrivacy и наших правил (без общих CDN из shared-cdn.txt):
+// влезает в Shadowrocket на iPhone. «full» — тот же список, что режет наш DoH.
+{
+  const lite = new Set();
+  const sources = [custom.network, ...upstream.filter(u => ['ruadlist', 'adguard-ru', 'easyprivacy', 'antiadblock'].includes(u.id)).map(u => u.network)];
+  for (const net of sources) {
+    for (const l of toDns(net, guard).lines) {
+      const m = l.match(/^\|\|([a-z0-9._-]+)\^/);
+      if (m && !l.startsWith('@@') && /\.[a-z][a-z0-9-]+$/.test(m[1])) lite.add(m[1]);
+    }
+  }
+  const dedupe = (list) => { const set = new Set(list); return [...set].filter(h => { for (let i = h.indexOf('.'); i >= 0; i = h.indexOf('.', i + 1)) if (set.has(h.slice(i + 1))) return false; return true; }).sort(); };
+  const sets = { lite: dedupe([...lite]), full: fullDomains.filter(h => /\.[a-z][a-z0-9-]+$/.test(h)) };
+  const head = (name) => `# Чисто — ${name}. Собрано tools/build.mjs ${new Date().toISOString().slice(0, 10)}. https://chisto.flownote.cc`;
+  for (const [kind, list] of Object.entries(sets)) {
+    write(p('site/rules', `domains-${kind}.txt`), `${head('домены рекламы и трекеров')}\n${list.join('\n')}\n`);
+    write(p('site/rules', `shadowrocket-${kind}.list`), `${head('Shadowrocket, правило REJECT')}\n${list.map(h => `DOMAIN-SUFFIX,${h}`).join('\n')}\n`);
+    write(p('site/rules', `clash-${kind}.txt`), `${list.map(h => `+.${h}`).join('\n')}\n`);
+    write(p('site/rules', `singbox-${kind}.json`), JSON.stringify({ version: 2, rules: [{ domain_suffix: list }] }));
+  }
+  log(`наборы для VPN: lite ${sets.lite.length}, full ${sets.full.length} доменов`);
+}
 
 // ── 6. Safari Content Blocker ──
 const safari = toSafari([custom, ...upstream], SAFARI_BUDGET);

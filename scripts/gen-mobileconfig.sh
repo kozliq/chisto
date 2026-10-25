@@ -40,12 +40,12 @@ cat > "$OUT" <<XML
         <key>DNSProtocol</key>
         <string>HTTPS</string>
         <key>ServerURL</key>
-        <string>https://${DOH_HOST}${DOH_PATH}</string>
+        <string>https://${DNS_HOST:-$DOH_HOST}${DOH_PATH}</string>
 ${ADDR_XML}      </dict>
       <key>PayloadDisplayName</key>
       <string>${NAME}: DNS через HTTPS</string>
       <key>PayloadDescription</key>
-      <string>Направляет DNS-запросы на ${DOH_HOST}, где отсекаются рекламные и трекерные домены. Трафик сайтов через сервер не идёт.</string>
+      <string>Направляет DNS-запросы на ${DNS_HOST:-$DOH_HOST}, где отсекаются рекламные и трекерные домены. Трафик сайтов через сервер не идёт.</string>
       <key>PayloadIdentifier</key>
       <string>${ID}.dns</string>
       <key>PayloadType</key>

@@ -69,6 +69,28 @@ export function answerInfo(a) {
   return out;
 }
 
+/**
+ * Нижняя граница TTL в ответе: телефон дольше держит адрес у себя и реже спрашивает сервер.
+ * Бесплатный Worker считает каждый запрос, а у CDN TTL бывает 20–60 секунд.
+ */
+export function floorTtl(a, min) {
+  if (a.length < 12) return a;
+  const qd = u16(a, 4), an = u16(a, 6);
+  const out = a.slice();
+  let o = 12;
+  for (let i = 0; i < qd; i++) { const n = readName(a, o); if (!n) return a; o = n.next + 4; }
+  for (let i = 0; i < an; i++) {
+    const n = readName(a, o);
+    if (!n || n.next + 10 > a.length) return a;
+    o = n.next;
+    const rdlen = u16(a, o + 8);
+    if (o + 10 + rdlen > a.length) return a;
+    if (u32(a, o + 4) < min) out.set([min >>> 24, (min >>> 16) & 0xff, (min >>> 8) & 0xff, min & 0xff], o + 4);
+    o += 10 + rdlen;
+  }
+  return out;
+}
+
 function header(q, end, ancount, rcode) {
   const r = new Uint8Array(end);
   r.set(q.subarray(0, end));
@@ -80,13 +102,15 @@ function header(q, end, ancount, rcode) {
 }
 
 /** Блокировка: 0.0.0.0 на A, :: на AAAA, пустой ответ на остальные типы и классы. */
+export const BLOCK_TTL = 3600; // реклама не переедет: час держим 0.0.0.0 в кэше телефона
+
 export function blockedAnswer(q, question) {
   const inet = question.cls === 1;
   const rdata = !inet ? null : question.type === 1 ? new Uint8Array(4) : question.type === 28 ? new Uint8Array(16) : null;
   const head = header(q, question.end, rdata ? 1 : 0, 0);
   if (!rdata) return head;
   const rr = new Uint8Array(12 + rdata.length);
-  rr.set([0xc0, 12, 0, question.type, 0, 1, 0, 0, 0, 10, 0, rdata.length]);
+  rr.set([0xc0, 12, 0, question.type, 0, 1, 0, 0, BLOCK_TTL >> 8, BLOCK_TTL & 0xff, 0, rdata.length]);
   const out = new Uint8Array(head.length + rr.length);
   out.set(head); out.set(rr, head.length);
   return out;

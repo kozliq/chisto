@@ -77,11 +77,24 @@ async function local(id) {
   return (mySegments[id] ?? []).map((s) => ({ ...s, source: 'ваша отметка' }));
 }
 
+// Быстрая часть (SponsorBlock + свои отметки) стартует сразу при смене ролика и не ждёт описания.
+let fast = Promise.resolve([]);
+let fastReady = false;
+
+function startFast(id) {
+  fastReady = false;
+  fast = Promise.all([fromSponsorBlock(id), local(id)]).then(([sb, mine]) => {
+    if (id !== videoId) return [];
+    const list = merge([...sb, ...mine]);
+    segments = merge([...segments, ...list]);
+    fastReady = true;
+    return list;
+  });
+  return fast;
+}
+
 async function load(id) {
-  segments = [];
-  ignored = new Set();
-  markStart = null;
-  const [sb, mine] = await Promise.all([fromSponsorBlock(id), local(id)]);
+  const quick = await fast;
   if (id !== videoId) return;
   // Описание дорисовывается позже плеера — ждём его до 10 секунд.
   let desc = [];
@@ -90,7 +103,7 @@ async function load(id) {
     if (!desc.length) await new Promise((r) => setTimeout(r, 1000));
     if (id !== videoId) return;
   }
-  segments = merge([...sb, ...mine, ...desc]);
+  segments = merge([...quick, ...desc, ...segments]);
   renderControls();
 }
 
@@ -105,21 +118,89 @@ function merge(list) {
   return out;
 }
 
-function onTime() {
-  if (!enabled || !video || video.paused && video.currentTime === 0) return;
-  const t = video.currentTime;
-  for (const s of segments) {
-    const key = `${s.start}`;
-    if (ignored.has(key)) continue;
+const GATE_MS = 350;       // дольше держать ролик на паузе ради сети нельзя
+const START_EPS = 0.5;     // вставка «с нуля»: начало не позже 0:00.5
+const SEEK_PAD = 0.05;
+
+const inAd = () => !!document.querySelector('#movie_player.ad-showing');
+
+/** Куда перемотать, если время t внутри вставки; иначе null. */
+function skipTarget(t, list, skipped, duration) {
+  for (const s of list) {
+    if (skipped.has(`${s.start}`)) continue;
     if (t >= s.start && t < s.end - 0.3) {
-      video.currentTime = s.end;
-      toast(`Пропущена реклама ${fmt(s.start)}–${fmt(s.end)} · ${s.source}`, 'Вернуть', () => {
-        ignored.add(key);
-        video.currentTime = s.start;
-      });
-      return;
+      const to = s.end + SEEK_PAD;
+      return { seg: s, to: Number.isFinite(duration) && duration > 0 ? Math.min(to, duration) : to };
     }
   }
+  return null;
+}
+
+function jump(v, hit) {
+  const { seg, to } = hit;
+  const key = `${seg.start}`;
+  v.currentTime = to;
+  toast(`Пропущена реклама ${fmt(seg.start)}–${fmt(seg.end)} · ${seg.source}`, 'Вернуть', () => {
+    ignored.add(key);
+    v.currentTime = seg.start;
+  });
+}
+
+function checkSkip() {
+  if (!enabled || !video || !videoId || inAd()) return;
+  if (video.paused && video.currentTime === 0) return;
+  const hit = skipTarget(video.currentTime, segments, ignored, video.duration);
+  if (hit) jump(video, hit);
+}
+
+// Проверка не только по редкому timeupdate (~4 раза в секунду): пока играет — каждый кадр,
+// если браузер умеет requestVideoFrameCallback, иначе таймером 100 мс.
+let frameLoop = 0;
+function watchFrames(v) {
+  const run = ++frameLoop;
+  if (typeof v.requestVideoFrameCallback === 'function') {
+    const step = () => { if (run !== frameLoop) return; checkSkip(); v.requestVideoFrameCallback(step); };
+    v.requestVideoFrameCallback(step);
+  } else {
+    const timer = setInterval(() => { if (run !== frameLoop) clearInterval(timer); else checkSkip(); }, 100);
+  }
+}
+
+// ── Старт с нуля: не даём вставке сыграть, пока ждём ответ SponsorBlock ──
+let hold = null; // { id, ours (ждём своей паузы), held (мы ставили на паузу), cancelled, done }
+
+const startsAtZero = (list) => list.find((s) => s.start <= START_EPS) ?? null;
+
+/** Ждём промис сегментов не дольше ms; по таймауту возвращаем null (скип случится позже по кадрам). */
+function withTimeout(promise, ms) {
+  let timer;
+  const timeout = new Promise((r) => { timer = setTimeout(() => r(null), ms); });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+async function gateStart(v, id) {
+  if (!enabled || inAd() || !id || id !== videoId) return;
+  if (v.currentTime > START_EPS) return;                   // продолжение с середины или ссылка с ?t=
+  if (hold?.id === id && !hold.done) return;               // уже ждём этот ролик
+  const h = (hold = { id, ours: false, held: false, cancelled: false, done: false });
+  const onPause = () => { if (h.ours) h.ours = false; else h.cancelled = true; }; // пауза не наша — человек остановил сам
+  v.addEventListener('pause', onPause);
+  if (!fastReady && !v.paused) { h.ours = h.held = true; v.pause(); }
+  const list = fastReady ? segments : await withTimeout(fast, GATE_MS);
+  v.removeEventListener('pause', onPause);
+  h.done = true;
+  if (id !== videoId || h.id !== id) return;
+  const first = startsAtZero(list ?? segments);
+  if (first && enabled) {
+    const hit = skipTarget(Math.max(v.currentTime, first.start), [first], ignored, v.duration);
+    if (hit) jump(v, hit);                                  // до запуска воспроизведения, без ожидания timeupdate
+  }
+  if (h.held && !h.cancelled && v.paused) resume(v);
+}
+
+function resume(v) {
+  const p = v.play();
+  if (p?.catch) p.catch(() => document.querySelector('.ytp-play-button')?.click());
 }
 
 // ── Интерфейс поверх плеера: только текст, без плашек-кнопок ──
@@ -216,24 +297,52 @@ async function refreshSettings() {
   renderControls();
 }
 
-function tick() {
-  const v = document.querySelector('#movie_player video, video.html5-main-video');
-  if (v && v !== video) {
-    video?.removeEventListener('timeupdate', onTime);
-    video = v;
-    video.addEventListener('timeupdate', onTime);
-  }
-  const id = currentId();
-  if (id !== videoId) {
-    videoId = id;
-    if (id) load(id);
-  }
-  if (id) ensureBar() && renderControls();
+function bindVideo(v) {
+  if (v === video) return;
+  video?.removeEventListener('timeupdate', checkSkip);
+  video = v;
+  video.addEventListener('timeupdate', checkSkip);
+  video.addEventListener('playing', () => watchFrames(video), { once: false });
+  if (!video.paused) watchFrames(video);
 }
 
+function switchTo(id) {
+  if (id === videoId) return;
+  videoId = id;
+  hold = null;
+  segments = [];
+  ignored = new Set();
+  markStart = null;
+  if (id) { startFast(id); load(id); }
+}
+
+function tick() {
+  const v = document.querySelector('#movie_player video, video.html5-main-video');
+  if (v) bindVideo(v);
+  switchTo(currentId());
+  if (videoId) ensureBar() && renderControls();
+}
+
+// Медиа-события не всплывают, но ловятся на document в фазе перехвата: <video> ещё может не быть
+// в DOM, а мы уже на месте — и успеваем до первого кадра. Опрос раз в секунду остаётся страховкой.
+const onMedia = (e) => {
+  const v = e.target;
+  if (!(v instanceof HTMLVideoElement) || !v.matches('#movie_player video, video.html5-main-video')) return;
+  bindVideo(v);
+  switchTo(currentId());
+  gateStart(v, videoId);
+};
+
 if (typeof document !== 'undefined' && ext?.storage) {
+  // Запрос к SponsorBlock уходит на document_start, не дожидаясь плеера.
+  switchTo(currentId());
   refreshSettings();
   ext.storage.onChanged.addListener(refreshSettings);
+  for (const ev of ['loadstart', 'loadedmetadata', 'canplay', 'play']) document.addEventListener(ev, onMedia, true);
+  document.addEventListener('yt-navigate-start', (e) => {
+    const id = e.detail?.endpoint?.watchEndpoint?.videoId;
+    if (id) switchTo(id);
+  });
   document.addEventListener('yt-navigate-finish', tick);
   setInterval(tick, 1000);
   tick();

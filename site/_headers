@@ -7,10 +7,13 @@
 /rules/update.json
   Cache-Control: max-age=600
   Access-Control-Allow-Origin: *
+/rules/*
+  Cache-Control: max-age=3600
+  Access-Control-Allow-Origin: *
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
-  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://chisto-dns.flownote.cc; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'
   Strict-Transport-Security: max-age=31536000
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()

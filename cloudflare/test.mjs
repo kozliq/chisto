@@ -1,7 +1,7 @@
 // Проверка разбора DNS без сети: node test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseQuestion, answerInfo, blockedAnswer, refused, b64urlDecode, rcode, limitKey } from './src/dns.js';
+import { parseQuestion, answerInfo, blockedAnswer, refused, b64urlDecode, rcode, limitKey, floorTtl, BLOCK_TTL } from './src/dns.js';
 import { handleUpdate, botRequest } from './src/bot.js';
 
 const name = (n) => n.split('.').flatMap((l) => [l.length, ...Buffer.from(l)]).concat(0);
@@ -55,6 +55,20 @@ test('цели DNAME и HTTPS тоже проверяются; пустой от
   const empty = Uint8Array.from([...q.slice(0, 2), 0x81, 0x83, 0, 1, 0, 0, 0, 0, 0, 0, ...q.slice(12)]);
   assert.equal(answerInfo(empty).minTtl, 60);
   assert.equal(rcode(empty), 3);
+});
+
+test('TTL: блок живёт час, короткий TTL поднимается до 300, длинный не трогается', () => {
+  const q = query('cdn.example.com');
+  const blocked = blockedAnswer(q, parseQuestion(q));
+  const ttlAt = (a, o) => ((a[o] << 24) >>> 0) + (a[o + 1] << 16) + (a[o + 2] << 8) + a[o + 3];
+  assert.equal(ttlAt(blocked, q.length + 6), BLOCK_TTL);
+  const rr = (ttl) => [0xc0, 12, 0, 1, 0, 1, (ttl >>> 24) & 255, (ttl >>> 16) & 255, (ttl >>> 8) & 255, ttl & 255, 0, 4, 1, 2, 3, 4];
+  const mk = (...rrs) => Uint8Array.from([...q.slice(0, 2), 0x81, 0x80, 0, 1, 0, rrs.length, 0, 0, 0, 0, ...q.slice(12), ...rrs.flat()]);
+  const a = floorTtl(mk(rr(20), rr(86400)), 300);
+  assert.equal(ttlAt(a, q.length + 6), 300);
+  assert.equal(ttlAt(a, q.length + 16 + 6), 86400);
+  const broken = mk(rr(20)).slice(0, -2);
+  assert.deepEqual(floorTtl(broken, 300), broken); // битый ответ отдаём как есть
 });
 
 test('CNAME длиннее своей записи не читается за её границей', () => {
