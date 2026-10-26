@@ -13,7 +13,7 @@ Chrome, Edge, Яндекс Браузер, Opera, Brave (≥ Chromium 121) и Fi
 Результат: `extension/dist/chrome`, `extension/dist/firefox`, архивы `site/dl/chisto-*.zip`.
 
 ## Поставить себе (Chrome и похожие)
-1. Распакуйте `chisto-chrome.zip` в постоянную папку.
+1. Распакуйте `chisto-chrome.zip` в постоянную папку своего пользователя (например, «Документы»). Не в `C:\Program Files`: браузер не сможет записать туда служебные файлы и покажет «Internal error while parsing rules».
 2. `chrome://extensions` → «Режим разработчика».
 3. «Загрузить распакованное» → эта папка.
 

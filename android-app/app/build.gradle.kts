@@ -20,9 +20,9 @@ android {
         applicationId = envOr("PROFILE_ID", "cc.flownote.chisto")
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
-        buildConfigField("String", "DOH_HOST", "\"${envOr("DOH_HOST", "chisto.flownote.cc")}\"")
+        versionCode = 2
+        versionName = "0.2.0"
+        buildConfigField("String", "DOH_HOST", "\"${envOr("DNS_HOST", "chisto-dns.flownote.cc")}\"")
         // Частный DNS (DoT) умеет только свой сервер на VPS. Cloudflare Worker — нет, поэтому по умолчанию выключено.
         buildConfigField("boolean", "HAS_DOT", envOr("HAS_DOT", "false"))
         buildConfigField("String", "DOH_PATH", "\"${envOr("DOH_PATH", "/dns-query")}\"")

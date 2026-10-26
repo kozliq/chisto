@@ -155,3 +155,29 @@ footer code { font-size: 17px; color: var(--muted); }
 .vpn-item h3 + .copybox { margin-top: 8px; }
 .vpn-sizes { color: var(--muted); font-size: 16px; }
 .vpn-sizes a { color: var(--muted); }
+
+/* iPhone: шаги со скринами и стрелками */
+.ios-steps { list-style: none; margin: 26px 0 8px; padding: 0; max-width: none; }
+.ios-step { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 18px clamp(24px, 5vw, 64px); align-items: start;
+  padding: 34px 0; border-top: 1px solid var(--line); }
+.ios-step:last-child { border-bottom: 1px solid var(--line); }
+.ios-text .n { display: block; font: 700 clamp(52px, 6vw, 72px)/.9 var(--font); }
+.ios-text .n::after { content: ""; display: block; width: 40px; height: 3px; background: var(--red); margin: 14px 0 16px; }
+.ios-text h3 { margin: 0 0 8px; font-size: 24px; line-height: 1.2; }
+.ios-text p { max-width: 24em; }
+.shot { display: block; width: 100%; height: auto; }
+.shot .ring { fill: none; stroke: #ec5a4c; stroke-width: 5; transform-box: fill-box; transform-origin: center; animation: ring 2.4s ease-in-out infinite; }
+.shot .arrow { fill: none; stroke: #ec5a4c; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 400; stroke-dashoffset: 0; }
+.tick { width: 120px; justify-self: start; }
+.tick circle { fill: none; stroke: var(--red); stroke-width: 5; }
+.tick path { fill: none; stroke: var(--text); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes ring { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .shot .ring { animation: none; } }
+.more-ios { border: 0; padding: 14px 0 0; }
+.more-ios summary { font-size: 17px; color: var(--muted); }
+.vpn-note { margin-top: 18px; }
+@media (max-width: 720px) {
+  .ios-step { grid-template-columns: minmax(0, 1fr); padding: 28px 0; }
+  .shot { max-width: 380px; }
+  .ios-text p { max-width: none; }
+}

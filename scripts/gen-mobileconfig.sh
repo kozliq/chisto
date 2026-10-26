@@ -66,6 +66,8 @@ ${ADDR_XML}      </dict>
   <string>${NAME}</string>
   <key>PayloadRemovalDisallowed</key>
   <false/>
+  <key>PayloadScope</key>
+  <string>System</string>
   <key>PayloadType</key>
   <string>Configuration</string>
   <key>PayloadUUID</key>
